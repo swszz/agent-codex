@@ -1,92 +1,92 @@
 ---
-description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
+description: tasks.md에 정의된 모든 작업을 처리하고 실행하여 구현 계획을 실행합니다
 scripts:
   sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
   ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
-## User Input
+## 사용자 입력
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+비어있지 않은 경우 진행하기 전에 사용자 입력을 **반드시** 고려해야 합니다.
 
-## Outline
+## 개요
 
-1. Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. 리포지토리 루트에서 `{SCRIPT}`를 실행하고 FEATURE_DIR 및 AVAILABLE_DOCS 목록을 파싱하세요. 모든 경로는 절대 경로여야 합니다. "I'm Groot"와 같은 인자의 작은따옴표는 이스케이프 구문을 사용하세요: 예 'I'\''m Groot' (또는 가능하면 큰따옴표 사용: "I'm Groot").
 
-2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
-   - Scan all checklist files in the checklists/ directory
-   - For each checklist, count:
-     * Total items: All lines matching `- [ ]` or `- [X]` or `- [x]`
-     * Completed items: Lines matching `- [X]` or `- [x]`
-     * Incomplete items: Lines matching `- [ ]`
-   - Create a status table:
+2. **체크리스트 상태 확인** (FEATURE_DIR/checklists/가 존재하는 경우):
+   - checklists/ 디렉토리의 모든 체크리스트 파일 스캔
+   - 각 체크리스트에 대해 카운트:
+     * 총 항목: `- [ ]` 또는 `- [X]` 또는 `- [x]`와 일치하는 모든 줄
+     * 완료된 항목: `- [X]` 또는 `- [x]`와 일치하는 줄
+     * 불완전한 항목: `- [ ]`와 일치하는 줄
+   - 상태 테이블 생성:
      ```
-     | Checklist | Total | Completed | Incomplete | Status |
+     | 체크리스트 | 총계 | 완료 | 불완전 | 상태 |
      |-----------|-------|-----------|------------|--------|
      | ux.md     | 12    | 12        | 0          | ✓ PASS |
      | test.md   | 8     | 5         | 3          | ✗ FAIL |
      | security.md | 6   | 6         | 0          | ✓ PASS |
      ```
-   - Calculate overall status:
-     * **PASS**: All checklists have 0 incomplete items
-     * **FAIL**: One or more checklists have incomplete items
+   - 전체 상태 계산:
+     * **PASS**: 모든 체크리스트의 불완전 항목이 0개
+     * **FAIL**: 하나 이상의 체크리스트에 불완전 항목이 있음
    
-   - **If any checklist is incomplete**:
-     * Display the table with incomplete item counts
-     * **STOP** and ask: "Some checklists are incomplete. Do you want to proceed with implementation anyway? (yes/no)"
-     * Wait for user response before continuing
-     * If user says "no" or "wait" or "stop", halt execution
-     * If user says "yes" or "proceed" or "continue", proceed to step 3
+   - **체크리스트가 불완전한 경우**:
+     * 불완전 항목 카운트가 있는 테이블 표시
+     * **중단**하고 질문: "일부 체크리스트가 불완전합니다. 어쨌든 구현을 진행하시겠습니까? (yes/no)"
+     * 계속하기 전에 사용자 응답 대기
+     * 사용자가 "no" 또는 "wait" 또는 "stop"이라고 말하면 실행 중단
+     * 사용자가 "yes" 또는 "proceed" 또는 "continue"라고 말하면 3단계로 진행
    
-   - **If all checklists are complete**:
-     * Display the table showing all checklists passed
-     * Automatically proceed to step 3
+   - **모든 체크리스트가 완료된 경우**:
+     * 모든 체크리스트가 통과했음을 보여주는 테이블 표시
+     * 자동으로 3단계로 진행
 
-3. Load and analyze the implementation context:
-   - **REQUIRED**: Read tasks.md for the complete task list and execution plan
-   - **REQUIRED**: Read plan.md for tech stack, architecture, and file structure
-   - **IF EXISTS**: Read data-model.md for entities and relationships
-   - **IF EXISTS**: Read contracts/ for API specifications and test requirements
-   - **IF EXISTS**: Read research.md for technical decisions and constraints
-   - **IF EXISTS**: Read quickstart.md for integration scenarios
+3. 구현 컨텍스트 로드 및 분석:
+   - **필수**: 완전한 작업 목록 및 실행 계획을 위해 tasks.md 읽기
+   - **필수**: 기술 스택, 아키텍처 및 파일 구조를 위해 plan.md 읽기
+   - **존재하는 경우**: 엔티티 및 관계를 위해 data-model.md 읽기
+   - **존재하는 경우**: API 명세 및 테스트 요구사항을 위해 contracts/ 읽기
+   - **존재하는 경우**: 기술 결정 및 제약사항을 위해 research.md 읽기
+   - **존재하는 경우**: 통합 시나리오를 위해 quickstart.md 읽기
 
-4. Parse tasks.md structure and extract:
-   - **Task phases**: Setup, Tests, Core, Integration, Polish
-   - **Task dependencies**: Sequential vs parallel execution rules
-   - **Task details**: ID, description, file paths, parallel markers [P]
-   - **Execution flow**: Order and dependency requirements
+4. tasks.md 구조 파싱 및 추출:
+   - **작업 페이즈**: Setup, Tests, Core, Integration, Polish
+   - **작업 의존성**: 순차적 vs 병렬 실행 규칙
+   - **작업 세부사항**: ID, 설명, 파일 경로, 병렬 마커 [P]
+   - **실행 플로우**: 순서 및 의존성 요구사항
 
-5. Execute implementation following the task plan:
-   - **Phase-by-phase execution**: Complete each phase before moving to the next
-   - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together  
-   - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
-   - **File-based coordination**: Tasks affecting the same files must run sequentially
-   - **Validation checkpoints**: Verify each phase completion before proceeding
+5. 작업 계획에 따라 구현 실행:
+   - **페이즈별 실행**: 다음 페이즈로 이동하기 전에 각 페이즈 완료
+   - **의존성 존중**: 순차적 작업을 순서대로 실행, 병렬 작업 [P]는 함께 실행 가능  
+   - **TDD 접근법 따르기**: 해당 구현 작업 전에 테스트 작업 실행
+   - **파일 기반 조정**: 동일한 파일에 영향을 미치는 작업은 순차적으로 실행해야 함
+   - **검증 체크포인트**: 진행하기 전에 각 페이즈 완료 검증
 
-6. Implementation execution rules:
-   - **Setup first**: Initialize project structure, dependencies, configuration
-   - **Tests before code**: If you need to write tests for contracts, entities, and integration scenarios
-   - **Core development**: Implement models, services, CLI commands, endpoints
-   - **Integration work**: Database connections, middleware, logging, external services
-   - **Polish and validation**: Unit tests, performance optimization, documentation
+6. 구현 실행 규칙:
+   - **Setup 우선**: 프로젝트 구조, 의존성, 구성 초기화
+   - **코드 전 테스트**: 계약, 엔티티 및 통합 시나리오에 대한 테스트를 작성해야 하는 경우
+   - **핵심 개발**: 모델, 서비스, CLI 명령어, 엔드포인트 구현
+   - **통합 작업**: 데이터베이스 연결, 미들웨어, 로깅, 외부 서비스
+   - **마무리 및 검증**: 유닛 테스트, 성능 최적화, 문서화
 
-7. Progress tracking and error handling:
-   - Report progress after each completed task
-   - Halt execution if any non-parallel task fails
-   - For parallel tasks [P], continue with successful tasks, report failed ones
-   - Provide clear error messages with context for debugging
-   - Suggest next steps if implementation cannot proceed
-   - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
+7. 진행 추적 및 에러 핸들링:
+   - 각 완료된 작업 후 진행 보고
+   - 비병렬 작업이 실패하면 실행 중단
+   - 병렬 작업 [P]의 경우 성공한 작업을 계속하고 실패한 작업 보고
+   - 디버깅을 위한 컨텍스트가 있는 명확한 에러 메시지 제공
+   - 구현을 진행할 수 없는 경우 다음 단계 제안
+   - **중요** 완료된 작업의 경우 tasks 파일에서 작업을 [X]로 표시해야 함.
 
-8. Completion validation:
-   - Verify all required tasks are completed
-   - Check that implemented features match the original specification
-   - Validate that tests pass and coverage meets requirements
-   - Confirm the implementation follows the technical plan
-   - Report final status with summary of completed work
+8. 완료 검증:
+   - 모든 필수 작업이 완료되었는지 확인
+   - 구현된 기능이 원래 명세와 일치하는지 확인
+   - 테스트가 통과하고 커버리지가 요구사항을 충족하는지 검증
+   - 구현이 기술 계획을 따르는지 확인
+   - 완료된 작업 요약과 함께 최종 상태 보고
 
-Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/tasks` first to regenerate the task list.
+참고: 이 명령어는 tasks.md에 완전한 작업 분해가 존재한다고 가정합니다. 작업이 불완전하거나 누락된 경우 먼저 `/tasks`를 실행하여 작업 목록을 재생성하도록 제안하세요.
