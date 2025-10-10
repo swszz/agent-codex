@@ -1,0 +1,12 @@
+{
+  "name": "ai-codex",
+  "version": "1.0.0",
+  "description": "AI-driven framework for Spec-Driven Development — replaces GitHub’s Spec Kit templates to enforce coding principles.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
