@@ -1,0 +1,54 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+      
+      - name: Get short commit SHA
+        id: sha
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      
+      - name: Create archive
+        run: |
+          zip -r ai-codex-${{ steps.date.outputs.date }}.zip . \
+            -x "*.git/*" \
+            -x ".github/*"
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.date.outputs.date }}-${{ steps.sha.outputs.sha }}
+          name: Release ${{ steps.date.outputs.date }}
+          body: |
+            AI Codex 릴리즈 - ${{ steps.date.outputs.date }}
+            
+            ## 변경사항
+            - 커밋: ${{ github.sha }}
+            - 날짜: ${{ steps.date.outputs.date }}
+            
+            ## 포함된 내용
+            - AI 기반 Spec-Driven Development 프레임워크 템플릿
+            - 메모리 및 헌장 파일
+            - 명령어 템플릿
+          files: |
+            ai-codex-${{ steps.date.outputs.date }}.zip
+          draft: false
+          prerelease: false
