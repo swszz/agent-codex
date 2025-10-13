@@ -3,15 +3,19 @@ AI-driven framework for Spec-Driven Development — replaces GitHub's Spec Kit t
 
 ## Installation
 
+**Important:** Navigate to your project root directory before running the installation script.
+
 To install or update the AI Codex templates and memory files in your project:
 
 ```bash
+cd /path/to/your/project  # Navigate to project root first
 curl -sL https://raw.githubusercontent.com/swszz/ai-codex/main/install.sh | bash
 ```
 
 Or download and run manually:
 
 ```bash
+cd /path/to/your/project  # Navigate to project root first
 curl -O https://raw.githubusercontent.com/swszz/ai-codex/main/install.sh
 chmod +x install.sh
 ./install.sh
@@ -26,6 +30,7 @@ INSTALL_DIR=/path/to/your/project ./install.sh
 ```
 
 The script will:
-- Download the latest release from GitHub
-- Extract only the `memory/` and `templates/` directories
-- Override files in the installation directory (current directory by default)
+1. Initialize specify settings using `uvx` (if available)
+2. Download the latest release from GitHub
+3. Extract and install to `.specify/memory/` and `.specify/templates/` directories
+4. Override duplicate files while preserving non-duplicate files in the installation directory (current directory by default)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AI Codex Installer
-# Downloads the latest release and extracts memory/ and templates/ directories
+# Initializes specify settings and downloads the latest release to .specify/ directory
 
 set -e
 
@@ -21,6 +21,20 @@ echo ""
 
 # Check dependencies
 command -v curl >/dev/null 2>&1 || { printf "${RED}Error: curl is required but not installed.${NC}\n" >&2; exit 1; }
+
+# Step 1: Initialize specify settings
+echo "Initializing specify settings..."
+if command -v uvx >/dev/null 2>&1; then
+    yes | uvx --from git+https://github.com/github/spec-kit.git specify init . --ai claude --ignore-agent-tools --script sh || {
+        printf "${YELLOW}Warning: specify init command failed or was cancelled${NC}\n"
+    }
+    printf "${GREEN}✓ Specify settings initialized${NC}\n"
+    echo ""
+else
+    printf "${YELLOW}Warning: uvx not found. Skipping specify initialization.${NC}\n"
+    printf "${YELLOW}To install uvx, visit: https://docs.astral.sh/uv/${NC}\n"
+    echo ""
+fi
 
 # Get latest release info
 echo "Fetching latest release information..."
@@ -88,42 +102,45 @@ else
     EXTRACTED_ROOT=$(find "${TEMP_DIR}/extracted" -maxdepth 1 -type d -not -path "${TEMP_DIR}/extracted" | head -n 1)
 fi
 
-# Copy memory and templates directories
+# Function to copy files with smart override (only override existing files, keep non-duplicates)
+smart_copy() {
+    local source_dir="$1"
+    local dest_dir="$2"
+    local dir_name="$3"
+    
+    if [ ! -d "$source_dir" ]; then
+        printf "${YELLOW}Warning: ${dir_name} directory not found in release${NC}\n"
+        return
+    fi
+    
+    mkdir -p "$dest_dir"
+    
+    # Copy all files from source
+    if [ -d "$dest_dir" ] && [ "$(ls -A "$dest_dir" 2>/dev/null)" ]; then
+        printf "${YELLOW}Overriding ${dir_name} directory (keeping non-duplicate files)...${NC}\n"
+        # Copy all files, overwriting existing ones
+        cp -rf "$source_dir/"* "$dest_dir/" 2>/dev/null || true
+    else
+        printf "${YELLOW}Creating ${dir_name} directory...${NC}\n"
+        cp -rf "$source_dir/"* "$dest_dir/" 2>/dev/null || true
+    fi
+    
+    printf "${GREEN}✓ ${dir_name} installed${NC}\n"
+}
+
+# Copy memory and templates directories to .specify/
 echo ""
-echo "Installing files to: ${INSTALL_DIR}"
+echo "Installing files to: ${INSTALL_DIR}/.specify"
 
-if [ -d "${EXTRACTED_ROOT}/memory" ]; then
-    if [ -d "${INSTALL_DIR}/memory" ]; then
-        printf "${YELLOW}Overriding memory/ directory...${NC}\n"
-    else
-        printf "${YELLOW}Creating memory/ directory...${NC}\n"
-    fi
-    mkdir -p "${INSTALL_DIR}/memory"
-    cp -rf "${EXTRACTED_ROOT}/memory/"* "${INSTALL_DIR}/memory/" 2>/dev/null || true
-    printf "${GREEN}✓ memory/ installed${NC}\n"
-else
-    printf "${YELLOW}Warning: memory/ directory not found in release${NC}\n"
-fi
-
-if [ -d "${EXTRACTED_ROOT}/templates" ]; then
-    if [ -d "${INSTALL_DIR}/templates" ]; then
-        printf "${YELLOW}Overriding templates/ directory...${NC}\n"
-    else
-        printf "${YELLOW}Creating templates/ directory...${NC}\n"
-    fi
-    mkdir -p "${INSTALL_DIR}/templates"
-    cp -rf "${EXTRACTED_ROOT}/templates/"* "${INSTALL_DIR}/templates/" 2>/dev/null || true
-    printf "${GREEN}✓ templates/ installed${NC}\n"
-else
-    printf "${YELLOW}Warning: templates/ directory not found in release${NC}\n"
-fi
+smart_copy "${EXTRACTED_ROOT}/memory" "${INSTALL_DIR}/.specify/memory" "memory"
+smart_copy "${EXTRACTED_ROOT}/templates" "${INSTALL_DIR}/.specify/templates" "templates"
 
 echo ""
 printf "${GREEN}Installation complete!${NC}\n"
 echo ""
 echo "Installed directories:"
-echo "  - ${INSTALL_DIR}/memory/"
-echo "  - ${INSTALL_DIR}/templates/"
+echo "  - ${INSTALL_DIR}/.specify/memory/"
+echo "  - ${INSTALL_DIR}/.specify/templates/"
 echo ""
 echo "You can override the installation directory by setting INSTALL_DIR:"
 echo "  INSTALL_DIR=/path/to/dir ./install.sh"
