@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2025.10.13] - 2025.10.13
 
 ### Changes
+- Add install.sh script for automated AI Codex installation (#14)
+
+
+## [2025.10.13] - 2025.10.13
+
+### Changes
 - Revise constitution with updated principles and processes
 
 
@@ -34,5 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.13-38c6446...HEAD
-[2025.10.13]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.13-38c6446
+
+[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.13-004dc2d...HEAD
+[2025.10.13]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.13-004dc2d
