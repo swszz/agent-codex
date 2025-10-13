@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2025.10.13] - 2025.10.13
+
+### Changes
+- Translate Korean text to English in release workflow and add automatic CHANGELOG.md updates (#13)
+
+
 ## [2025.10.13] - 2025-10-13
 
 ### Added
@@ -20,5 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - .claude directory and install.sh file (cleanup)
 
-[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.13-3def4b1...HEAD
-[2025.10.13]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.13-3def4b1
+
+[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.13-e9ce07d...HEAD
+[2025.10.13]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.13-e9ce07d
