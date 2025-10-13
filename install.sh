@@ -76,18 +76,26 @@ echo ""
 echo "Installing files to: ${INSTALL_DIR}"
 
 if [ -d "${EXTRACTED_ROOT}/memory" ]; then
-    echo -e "${YELLOW}Copying memory/ directory...${NC}"
+    if [ -d "${INSTALL_DIR}/memory" ]; then
+        echo -e "${YELLOW}Overriding memory/ directory...${NC}"
+    else
+        echo -e "${YELLOW}Creating memory/ directory...${NC}"
+    fi
     mkdir -p "${INSTALL_DIR}/memory"
-    cp -r "${EXTRACTED_ROOT}/memory/"* "${INSTALL_DIR}/memory/" 2>/dev/null || true
+    cp -rf "${EXTRACTED_ROOT}/memory/"* "${INSTALL_DIR}/memory/" 2>/dev/null || true
     echo -e "${GREEN}✓ memory/ installed${NC}"
 else
     echo -e "${YELLOW}Warning: memory/ directory not found in release${NC}"
 fi
 
 if [ -d "${EXTRACTED_ROOT}/templates" ]; then
-    echo -e "${YELLOW}Copying templates/ directory...${NC}"
+    if [ -d "${INSTALL_DIR}/templates" ]; then
+        echo -e "${YELLOW}Overriding templates/ directory...${NC}"
+    else
+        echo -e "${YELLOW}Creating templates/ directory...${NC}"
+    fi
     mkdir -p "${INSTALL_DIR}/templates"
-    cp -r "${EXTRACTED_ROOT}/templates/"* "${INSTALL_DIR}/templates/" 2>/dev/null || true
+    cp -rf "${EXTRACTED_ROOT}/templates/"* "${INSTALL_DIR}/templates/" 2>/dev/null || true
     echo -e "${GREEN}✓ templates/ installed${NC}"
 else
     echo -e "${YELLOW}Warning: templates/ directory not found in release${NC}"
