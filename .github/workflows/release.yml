@@ -26,6 +26,62 @@ jobs:
         id: sha
         run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+      
+      - name: Get commit messages since last release
+        id: commits
+        run: |
+          if [ -n "${{ steps.prev_tag.outputs.prev_tag }}" ]; then
+            COMMITS=$(git log ${{ steps.prev_tag.outputs.prev_tag }}..HEAD --pretty=format:"- %s" | head -20)
+          else
+            COMMITS=$(git log --pretty=format:"- %s" | head -20)
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Update CHANGELOG.md
+        run: |
+          TAG_NAME="v${{ steps.date.outputs.date }}-${{ steps.sha.outputs.sha }}"
+          DATE="${{ steps.date.outputs.date }}"
+          
+          # Read the current CHANGELOG.md
+          # Create a temporary file with the new entry
+          cat > /tmp/new_entry.md << 'EOF'
+          ## [${{ steps.date.outputs.date }}] - ${{ steps.date.outputs.date }}
+          
+          ### Changes
+          ${{ steps.commits.outputs.commits }}
+          
+          EOF
+          
+          # Create new CHANGELOG by inserting after [Unreleased] section
+          awk '/## \[Unreleased\]/ {print; print ""; system("cat /tmp/new_entry.md"); next} 1' CHANGELOG.md > /tmp/changelog_new.md
+          
+          # Update the comparison links
+          # Remove old version links temporarily
+          sed -i '/^\[.*\]: https:\/\/github\.com/d' /tmp/changelog_new.md
+          
+          # Add updated links
+          echo "" >> /tmp/changelog_new.md
+          echo "[Unreleased]: https://github.com/swszz/ai-codex/compare/$TAG_NAME...HEAD" >> /tmp/changelog_new.md
+          echo "[$DATE]: https://github.com/swszz/ai-codex/releases/tag/$TAG_NAME" >> /tmp/changelog_new.md
+          
+          # Replace original CHANGELOG.md
+          mv /tmp/changelog_new.md CHANGELOG.md
+      
+      - name: Commit CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "docs: Update CHANGELOG.md for release ${{ steps.date.outputs.date }}"
+          git push
+      
       - name: Create archive
         run: |
           zip -r ai-codex-${{ steps.date.outputs.date }}.zip . \
@@ -38,16 +94,19 @@ jobs:
           tag_name: v${{ steps.date.outputs.date }}-${{ steps.sha.outputs.sha }}
           name: Release ${{ steps.date.outputs.date }}
           body: |
-            AI Codex 릴리즈 - ${{ steps.date.outputs.date }}
+            AI Codex Release - ${{ steps.date.outputs.date }}
             
-            ## 변경사항
-            - 커밋: ${{ github.sha }}
-            - 날짜: ${{ steps.date.outputs.date }}
+            ## Changes
+            ${{ steps.commits.outputs.commits }}
             
-            ## 포함된 내용
-            - AI 기반 Spec-Driven Development 프레임워크 템플릿
-            - 메모리 및 헌장 파일
-            - 명령어 템플릿
+            ## Details
+            - Commit: ${{ github.sha }}
+            - Date: ${{ steps.date.outputs.date }}
+            
+            ## Included Content
+            - AI-based Spec-Driven Development framework templates
+            - Memory and constitution files
+            - Command templates
           files: |
             ai-codex-${{ steps.date.outputs.date }}.zip
           draft: false
