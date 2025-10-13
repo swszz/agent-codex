@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2025.10.13] - 2025.10.13
 
 ### Changes
+- Revise constitution with updated principles and processes
+
+
+## [2025.10.13] - 2025.10.13
+
+### Changes
 - Translate Korean text to English in release workflow and add automatic CHANGELOG.md updates (#13)
 
 
@@ -27,5 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - .claude directory and install.sh file (cleanup)
 
 
-[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.13-e9ce07d...HEAD
-[2025.10.13]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.13-e9ce07d
+
+[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.13-38c6446...HEAD
+[2025.10.13]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.13-38c6446
