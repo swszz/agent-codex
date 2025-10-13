@@ -1,211 +1,211 @@
 ---
-description: 자연어 기능 설명에서 기능 명세를 생성하거나 업데이트합니다.
+description: Create or update the feature specification from a natural language feature description.
 scripts:
   sh: scripts/bash/create-new-feature.sh --json "{ARGS}"
   ps: scripts/powershell/create-new-feature.ps1 -Json "{ARGS}"
 ---
 
-## 사용자 입력
+## User Input
 
 ```text
 $ARGUMENTS
 ```
 
-비어있지 않은 경우 진행하기 전에 사용자 입력을 **반드시** 고려해야 합니다.
+You **MUST** consider the user input before proceeding (if not empty).
 
-## 개요
+## Outline
 
-트리거 메시지에서 `/speckit.specify` 다음에 사용자가 입력한 텍스트**가** 기능 설명입니다. 아래에 `{ARGS}`가 문자 그대로 나타나더라도 이 대화에서 항상 사용 가능하다고 가정하세요. 사용자가 빈 명령어를 제공하지 않는 한 반복하도록 요청하지 마세요.
+The text the user typed after `/speckit.specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `{ARGS}` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
-주어진 기능 설명으로 다음을 수행하세요:
+Given that feature description, do this:
 
-1. 리포지토리 루트에서 스크립트 `{SCRIPT}`를 실행하고 BRANCH_NAME과 SPEC_FILE에 대한 JSON 출력을 파싱하세요. 모든 파일 경로는 절대 경로여야 합니다.
-  **중요** 이 스크립트는 한 번만 실행해야 합니다. JSON은 터미널 출력으로 제공됩니다 - 찾고자 하는 실제 내용을 얻기 위해 항상 이를 참조하세요. "I'm Groot"와 같은 인자의 작은따옴표는 이스케이프 구문을 사용하세요: 예 'I'\''m Groot' (또는 가능하면 큰따옴표 사용: "I'm Groot").
-2. `templates/spec-template.md`를 로드하여 필요한 섹션을 이해하세요.
+1. Run the script `{SCRIPT}` from repo root and parse its JSON output for BRANCH_NAME and SPEC_FILE. All file paths must be absolute.
+  **IMPORTANT** You must only ever run this script once. The JSON is provided in the terminal as output - always refer to it to get the actual content you're looking for. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+2. Load `templates/spec-template.md` to understand required sections.
 
-3. 다음 실행 흐름을 따르세요:
+3. Follow this execution flow:
 
-    1. 입력에서 사용자 설명 파싱
-       비어있으면: ERROR "기능 설명이 제공되지 않음"
-    2. 설명에서 핵심 개념 추출
-       식별: 행위자, 액션, 데이터, 제약사항
-    3. 불명확한 측면의 경우:
-       - 컨텍스트와 업계 표준을 기반으로 정보에 입각한 추측을 하세요
-       - 다음 경우에만 [명확화 필요: 구체적인 질문]으로 표시:
-         - 선택이 기능 범위 또는 사용자 경험에 크게 영향을 미침
-         - 서로 다른 의미를 가진 여러 합리적인 해석이 존재
-         - 합리적인 기본값이 없음
-       - **제한: 최대 3개의 [명확화 필요] 마커**
-       - 영향별로 명확화 우선순위 지정: 범위 > 보안/프라이버시 > 사용자 경험 > 기술 세부사항
-    4. 사용자 시나리오 & 테스팅 섹션 작성
-       명확한 사용자 플로우가 없으면: ERROR "사용자 시나리오를 결정할 수 없음"
-    5. 기능 요구사항 생성
-       각 요구사항은 테스트 가능해야 함
-       명시되지 않은 세부사항에 대해 합리적인 기본값 사용 (가정 섹션에 가정 문서화)
-    6. 성공 기준 정의
-       측정 가능하고 기술 중립적인 결과 생성
-       정량적 메트릭(시간, 성능, 볼륨)과 정성적 측정(사용자 만족도, 작업 완료) 모두 포함
-       각 기준은 구현 세부사항 없이 검증 가능해야 함
-    7. 주요 엔티티 식별 (데이터가 포함된 경우)
-    8. 반환: SUCCESS (계획 준비된 명세)
+    1. Parse user description from Input
+       If empty: ERROR "No feature description provided"
+    2. Extract key concepts from description
+       Identify: actors, actions, data, constraints
+    3. For unclear aspects:
+       - Make informed guesses based on context and industry standards
+       - Only mark with [NEEDS CLARIFICATION: specific question] if:
+         - The choice significantly impacts feature scope or user experience
+         - Multiple reasonable interpretations exist with different implications
+         - No reasonable default exists
+       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
+       - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
+    4. Fill User Scenarios & Testing section
+       If no clear user flow: ERROR "Cannot determine user scenarios"
+    5. Generate Functional Requirements
+       Each requirement must be testable
+       Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
+    6. Define Success Criteria
+       Create measurable, technology-agnostic outcomes
+       Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
+       Each criterion must be verifiable without implementation details
+    7. Identify Key Entities (if data involved)
+    8. Return: SUCCESS (spec ready for planning)
 
-4. 템플릿 구조를 사용하여 SPEC_FILE에 명세를 작성하고, 섹션 순서와 제목을 유지하면서 기능 설명(인자)에서 파생된 구체적인 세부사항으로 플레이스홀더를 교체하세요.
+4. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
-5. **명세 품질 검증**: 초기 명세를 작성한 후 품질 기준에 대해 검증:
+5. **Specification Quality Validation**: After writing the initial spec, validate it against quality criteria:
 
-   a. **명세 품질 체크리스트 생성**: 다음 검증 항목들을 포함한 체크리스트 템플릿 구조를 사용하여 `FEATURE_DIR/checklists/requirements.md`에 체크리스트 파일 생성:
+   a. **Create Spec Quality Checklist**: Generate a checklist file at `FEATURE_DIR/checklists/requirements.md` using the checklist template structure with these validation items:
    
       ```markdown
-      # 명세 품질 체크리스트: [FEATURE NAME]
+      # Specification Quality Checklist: [FEATURE NAME]
       
-      **목적**: 계획으로 진행하기 전에 명세 완성도 및 품질 검증
-      **생성일**: [DATE]
-      **기능**: [spec.md 링크]
+      **Purpose**: Validate specification completeness and quality before proceeding to planning
+      **Created**: [DATE]
+      **Feature**: [Link to spec.md]
       
-      ## 콘텐츠 품질
+      ## Content Quality
       
-      - [ ] 구현 세부사항 없음 (언어, 프레임워크, API)
-      - [ ] 사용자 가치 및 비즈니스 요구에 집중
-      - [ ] 비기술 이해관계자를 위해 작성됨
-      - [ ] 모든 필수 섹션 완료됨
+      - [ ] No implementation details (languages, frameworks, APIs)
+      - [ ] Focused on user value and business needs
+      - [ ] Written for non-technical stakeholders
+      - [ ] All mandatory sections completed
       
-      ## 요구사항 완성도
+      ## Requirement Completeness
       
-      - [ ] [명확화 필요] 마커가 남아있지 않음
-      - [ ] 요구사항이 테스트 가능하고 명확함
-      - [ ] 성공 기준이 측정 가능함
-      - [ ] 성공 기준이 기술 중립적임 (구현 세부사항 없음)
-      - [ ] 모든 수락 시나리오가 정의됨
-      - [ ] 엣지 케이스가 식별됨
-      - [ ] 범위가 명확하게 정의됨
-      - [ ] 의존성과 가정이 식별됨
+      - [ ] No [NEEDS CLARIFICATION] markers remain
+      - [ ] Requirements are testable and unambiguous
+      - [ ] Success criteria are measurable
+      - [ ] Success criteria are technology-agnostic (no implementation details)
+      - [ ] All acceptance scenarios are defined
+      - [ ] Edge cases are identified
+      - [ ] Scope is clearly bounded
+      - [ ] Dependencies and assumptions identified
       
-      ## 기능 준비도
+      ## Feature Readiness
       
-      - [ ] 모든 기능 요구사항이 명확한 수락 기준을 가짐
-      - [ ] 사용자 시나리오가 주요 플로우를 포함함
-      - [ ] 기능이 성공 기준에 정의된 측정 가능한 결과를 충족함
-      - [ ] 명세에 구현 세부사항이 누출되지 않음
+      - [ ] All functional requirements have clear acceptance criteria
+      - [ ] User scenarios cover primary flows
+      - [ ] Feature meets measurable outcomes defined in Success Criteria
+      - [ ] No implementation details leak into specification
       
-      ## 참고사항
+      ## Notes
       
-      - 불완전으로 표시된 항목은 `/speckit.clarify` 또는 `/speckit.plan` 전에 명세 업데이트 필요
+      - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
       ```
    
-   b. **검증 체크 실행**: 각 체크리스트 항목에 대해 명세 검토:
-      - 각 항목에 대해 통과 또는 실패 판정
-      - 발견된 구체적인 문제 문서화 (관련 명세 섹션 인용)
+   b. **Run Validation Check**: Review the spec against each checklist item:
+      - For each item, determine if it passes or fails
+      - Document specific issues found (quote relevant spec sections)
    
-   c. **검증 결과 처리**:
+   c. **Handle Validation Results**:
       
-      - **모든 항목 통과**: 체크리스트를 완료로 표시하고 6단계로 진행
+      - **If all items pass**: Mark checklist complete and proceed to step 6
       
-      - **항목 실패 ([명확화 필요] 제외)**:
-        1. 실패한 항목과 구체적인 문제 나열
-        2. 각 문제를 해결하도록 명세 업데이트
-        3. 모든 항목이 통과할 때까지 검증 재실행 (최대 3회 반복)
-        4. 3회 반복 후에도 여전히 실패하면 체크리스트 참고사항에 남은 문제 문서화하고 사용자에게 경고
+      - **If items fail (excluding [NEEDS CLARIFICATION])**:
+        1. List the failing items and specific issues
+        2. Update the spec to address each issue
+        3. Re-run validation until all items pass (max 3 iterations)
+        4. If still failing after 3 iterations, document remaining issues in checklist notes and warn user
       
-      - **[명확화 필요] 마커가 남아있으면**:
-        1. 명세에서 모든 [명확화 필요: ...] 마커 추출
-        2. **제한 체크**: 3개 이상의 마커가 있으면 가장 중요한 3개만 유지 (범위/보안/UX 영향별)하고 나머지는 정보에 입각한 추측 사용
-        3. 필요한 각 명확화(최대 3개)에 대해 다음 형식으로 사용자에게 옵션 제시:
+      - **If [NEEDS CLARIFICATION] markers remain**:
+        1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
+        2. **LIMIT CHECK**: If more than 3 markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest
+        3. For each clarification needed (max 3), present options to user in this format:
         
            ```markdown
-           ## 질문 [N]: [주제]
+           ## Question [N]: [Topic]
            
-           **컨텍스트**: [관련 명세 섹션 인용]
+           **Context**: [Quote relevant spec section]
            
-           **알아야 할 사항**: [명확화 필요 마커의 구체적인 질문]
+           **What we need to know**: [Specific question from NEEDS CLARIFICATION marker]
            
-           **제안된 답변**:
+           **Suggested Answers**:
            
-           | 옵션 | 답변 | 의미 |
+           | Option | Answer | Implications |
            |--------|--------|--------------|
-           | A      | [첫 번째 제안 답변] | [기능에 대한 의미] |
-           | B      | [두 번째 제안 답변] | [기능에 대한 의미] |
-           | C      | [세 번째 제안 답변] | [기능에 대한 의미] |
-           | Custom | 자체 답변 제공 | [사용자 정의 입력 제공 방법 설명] |
+           | A      | [First suggested answer] | [What this means for the feature] |
+           | B      | [Second suggested answer] | [What this means for the feature] |
+           | C      | [Third suggested answer] | [What this means for the feature] |
+           | Custom | Provide your own answer | [Explain how to provide custom input] |
            
-           **선택**: _[사용자 응답 대기]_
+           **Your choice**: _[Wait for user response]_
            ```
         
-        4. **중요 - 테이블 형식**: 마크다운 테이블이 올바르게 형식화되도록 보장:
-           - 파이프가 정렬된 일관된 간격 사용
-           - 각 셀은 내용 주위에 공백이 있어야 함: `| 내용 |` (X) `|내용|`
-           - 헤더 구분자는 최소 3개의 대시가 있어야 함: `|--------|`
-           - 마크다운 미리보기에서 테이블이 올바르게 렌더링되는지 테스트
-        5. 질문에 순차적으로 번호 매김 (Q1, Q2, Q3 - 최대 3개)
-        6. 응답을 기다리기 전에 모든 질문을 함께 제시
-        7. 사용자가 모든 질문에 대한 선택으로 응답할 때까지 대기 (예: "Q1: A, Q2: Custom - [세부사항], Q3: B")
-        8. 각 [명확화 필요] 마커를 사용자가 선택하거나 제공한 답변으로 교체하여 명세 업데이트
-        9. 모든 명확화가 해결된 후 검증 재실행
+        4. **CRITICAL - Table Formatting**: Ensure markdown tables are properly formatted:
+           - Use consistent spacing with pipes aligned
+           - Each cell should have spaces around content: `| Content |` not `|Content|`
+           - Header separator must have at least 3 dashes: `|--------|`
+           - Test that the table renders correctly in markdown preview
+        5. Number questions sequentially (Q1, Q2, Q3 - max 3 total)
+        6. Present all questions together before waiting for responses
+        7. Wait for user to respond with their choices for all questions (e.g., "Q1: A, Q2: Custom - [details], Q3: B")
+        8. Update the spec by replacing each [NEEDS CLARIFICATION] marker with the user's selected or provided answer
+        9. Re-run validation after all clarifications are resolved
    
-   d. **체크리스트 업데이트**: 각 검증 반복 후 현재 통과/실패 상태로 체크리스트 파일 업데이트
+   d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-6. 브랜치 이름, 명세 파일 경로, 체크리스트 결과 및 다음 단계(`/speckit.clarify` 또는 `/speckit.plan`) 준비 상태로 완료 보고.
+6. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/speckit.clarify` or `/speckit.plan`).
 
-**참고:** 스크립트는 작성 전에 새 브랜치를 생성하고 체크아웃하며 명세 파일을 초기화합니다.
+**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
-## 일반 가이드라인
+## General Guidelines
 
-## 빠른 가이드라인
+## Quick Guidelines
 
-- **무엇**을 사용자가 필요로 하고 **왜** 필요한지에 집중하세요.
-- 구현 방법을 피하세요 (기술 스택, API, 코드 구조 없음).
-- 개발자가 아닌 비즈니스 이해관계자를 위해 작성하세요.
-- 명세에 포함된 체크리스트를 생성하지 마세요. 별도의 명령어가 있습니다.
+- Focus on **WHAT** users need and **WHY**.
+- Avoid HOW to implement (no tech stack, APIs, code structure).
+- Written for business stakeholders, not developers.
+- DO NOT create any checklists that are embedded in the spec. That will be a separate command.
 
-### 섹션 요구사항
+### Section Requirements
 
-- **필수 섹션**: 모든 기능에 대해 완료되어야 함
-- **선택적 섹션**: 기능과 관련이 있을 때만 포함
-- 섹션이 적용되지 않으면 완전히 제거 ("N/A"로 남기지 마세요)
+- **Mandatory sections**: Must be completed for every feature
+- **Optional sections**: Include only when relevant to the feature
+- When a section doesn't apply, remove it entirely (don't leave as "N/A")
 
-### AI 생성용
+### For AI Generation
 
-사용자 프롬프트에서 이 명세를 생성할 때:
+When creating this spec from a user prompt:
 
-1. **정보에 입각한 추측 하기**: 컨텍스트, 업계 표준 및 일반적인 패턴을 사용하여 공백을 채우세요
-2. **가정 문서화**: 가정 섹션에 합리적인 기본값을 기록하세요
-3. **명확화 제한**: 최대 3개의 [명확화 필요] 마커 - 다음과 같은 중요한 결정에만 사용:
-   - 기능 범위 또는 사용자 경험에 크게 영향을 미침
-   - 서로 다른 의미를 가진 여러 합리적인 해석이 있음
-   - 합리적인 기본값이 없음
-4. **명확화 우선순위 지정**: 범위 > 보안/프라이버시 > 사용자 경험 > 기술 세부사항
-5. **테스터처럼 생각하기**: 모호한 모든 요구사항은 "테스트 가능하고 명확함" 체크리스트 항목에서 실패해야 함
-6. **명확화가 필요한 일반 영역** (합리적인 기본값이 없는 경우에만):
-   - 기능 범위 및 경계 (특정 사용 사례 포함/제외)
-   - 사용자 유형 및 권한 (여러 충돌하는 해석이 가능한 경우)
-   - 보안/컴플라이언스 요구사항 (법적/재정적으로 중요한 경우)
+1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
+2. **Document assumptions**: Record reasonable defaults in the Assumptions section
+3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers - use only for critical decisions that:
+   - Significantly impact feature scope or user experience
+   - Have multiple reasonable interpretations with different implications
+   - Lack any reasonable default
+4. **Prioritize clarifications**: scope > security/privacy > user experience > technical details
+5. **Think like a tester**: Every vague requirement should fail the "testable and unambiguous" checklist item
+6. **Common areas needing clarification** (only if no reasonable default exists):
+   - Feature scope and boundaries (include/exclude specific use cases)
+   - User types and permissions (if multiple conflicting interpretations possible)
+   - Security/compliance requirements (when legally/financially significant)
    
-**합리적인 기본값 예시** (이것들에 대해 묻지 마세요):
+**Examples of reasonable defaults** (don't ask about these):
 
-- 데이터 보존: 도메인에 대한 업계 표준 관행
-- 성능 목표: 명시되지 않는 한 표준 웹/모바일 앱 기대치
-- 에러 핸들링: 적절한 폴백이 있는 사용자 친화적 메시지
-- 인증 방법: 웹 앱용 표준 세션 기반 또는 OAuth2
-- 통합 패턴: 달리 명시되지 않는 한 RESTful API
+- Data retention: Industry-standard practices for the domain
+- Performance targets: Standard web/mobile app expectations unless specified
+- Error handling: User-friendly messages with appropriate fallbacks
+- Authentication method: Standard session-based or OAuth2 for web apps
+- Integration patterns: RESTful APIs unless specified otherwise
 
-### 성공 기준 가이드라인
+### Success Criteria Guidelines
 
-성공 기준은 다음이어야 합니다:
+Success criteria must be:
 
-1. **측정 가능**: 구체적인 메트릭 포함 (시간, 백분율, 카운트, 비율)
-2. **기술 중립적**: 프레임워크, 언어, 데이터베이스 또는 도구에 대한 언급 없음
-3. **사용자 중심**: 시스템 내부가 아닌 사용자/비즈니스 관점에서 결과 설명
-4. **검증 가능**: 구현 세부사항을 모르고도 테스트/검증 가능
+1. **Measurable**: Include specific metrics (time, percentage, count, rate)
+2. **Technology-agnostic**: No mention of frameworks, languages, databases, or tools
+3. **User-focused**: Describe outcomes from user/business perspective, not system internals
+4. **Verifiable**: Can be tested/validated without knowing implementation details
 
-**좋은 예시**:
+**Good examples**:
 
-- "사용자는 3분 이내에 결제를 완료할 수 있음"
-- "시스템은 10,000명의 동시 사용자를 지원함"
-- "검색의 95%가 1초 이내에 결과를 반환함"
-- "작업 완료율이 40% 향상됨"
+- "Users can complete checkout in under 3 minutes"
+- "System supports 10,000 concurrent users"
+- "95% of searches return results in under 1 second"
+- "Task completion rate improves by 40%"
 
-**나쁜 예시** (구현 중심):
+**Bad examples** (implementation-focused):
 
-- "API 응답 시간이 200ms 미만" (너무 기술적, "사용자가 즉시 결과를 봄" 사용)
-- "데이터베이스가 1000 TPS를 처리할 수 있음" (구현 세부사항, 사용자 대면 메트릭 사용)
-- "React 컴포넌트가 효율적으로 렌더링됨" (프레임워크별)
-- "Redis 캐시 히트율 80% 이상" (기술별)
+- "API response time is under 200ms" (too technical, use "Users see results instantly")
+- "Database can handle 1000 TPS" (implementation detail, use user-facing metric)
+- "React components render efficiently" (framework-specific)
+- "Redis cache hit rate above 80%" (technology-specific)
