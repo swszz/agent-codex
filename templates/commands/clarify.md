@@ -1,23 +1,23 @@
 ---
-description: 최대 5개의 고도로 타겟팅된 명확화 질문을 통해 현재 기능 명세의 불충분하게 명시된 영역을 식별하고 답변을 명세에 다시 인코딩합니다.
+description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
 scripts:
    sh: scripts/bash/check-prerequisites.sh --json --paths-only
    ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
 ---
 
-## 사용자 입력
+## User Input
 
 ```text
 $ARGUMENTS
 ```
 
-비어있지 않은 경우 진행하기 전에 사용자 입력을 **반드시** 고려해야 합니다.
+You **MUST** consider the user input before proceeding (if not empty).
 
-## 개요
+## Outline
 
-목표: 활성 기능 명세의 모호성 또는 누락된 의사결정 포인트를 감지하고 줄이며 명확화를 명세 파일에 직접 기록합니다.
+Goal: Detect and reduce ambiguity or missing decision points in the active feature specification and record the clarifications directly in the spec file.
 
-참고: 이 명확화 워크플로우는 `/speckit.plan`을 호출하기 전에 실행(및 완료)될 것으로 예상됩니다. 사용자가 명확화를 건너뛴다고 명시적으로 언급하는 경우 (예: 탐색적 스파이크), 진행할 수 있지만 다운스트림 재작업 위험이 증가한다는 경고를 해야 합니다.
+Note: This clarification workflow is expected to run (and be completed) BEFORE invoking `/speckit.plan`. If the user explicitly states they are skipping clarification (e.g., exploratory spike), you may proceed, but must warn that downstream rework risk increases.
 
 Execution steps:
 
@@ -97,7 +97,15 @@ Execution steps:
 
 4. Sequential questioning loop (interactive):
     - Present EXACTLY ONE question at a time.
-    - For multiple‑choice questions render options as a Markdown table:
+    - For multiple‑choice questions:
+       * **Analyze all options** and determine the **most suitable option** based on:
+          - Best practices for the project type
+          - Common patterns in similar implementations
+          - Risk reduction (security, performance, maintainability)
+          - Alignment with any explicit project goals or constraints visible in the spec
+       * Present your **recommended option prominently** at the top with clear reasoning (1-2 sentences explaining why this is the best choice).
+       * Format as: `**Recommended:** Option [X] - <reasoning>`
+       * Then render all options as a Markdown table:
 
        | Option | Description |
        |--------|-------------|
@@ -106,9 +114,14 @@ Execution steps:
        | C | <Option C description> | (add D/E as needed up to 5)
        | Short | Provide a different short answer (<=5 words) | (Include only if free-form alternative is appropriate)
 
-    - For short‑answer style (no meaningful discrete options), output a single line after the question: `Format: Short answer (<=5 words)`.
+       * After the table, add: `You can reply with the option letter (e.g., "A"), accept the recommendation by saying "yes" or "recommended", or provide your own short answer.`
+    - For short‑answer style (no meaningful discrete options):
+       * Provide your **suggested answer** based on best practices and context.
+       * Format as: `**Suggested:** <your proposed answer> - <brief reasoning>`
+       * Then output: `Format: Short answer (<=5 words). You can accept the suggestion by saying "yes" or "suggested", or provide your own answer.`
     - After the user answers:
-       * Validate the answer maps to one option or fits the <=5 word constraint.
+       * If the user replies with "yes", "recommended", or "suggested", use your previously stated recommendation/suggestion as the answer.
+       * Otherwise, validate the answer maps to one option or fits the <=5 word constraint.
        * If ambiguous, ask for a quick disambiguation (count still belongs to same question; do not advance).
        * Once satisfactory, record it in working memory (do not yet write to disk) and move to the next queued question.
     - Stop asking further questions when:
