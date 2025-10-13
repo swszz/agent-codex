@@ -132,8 +132,8 @@ smart_copy() {
 echo ""
 echo "Installing files to: ${INSTALL_DIR}/.specify"
 
-smart_copy "${EXTRACTED_ROOT}/memory" "${INSTALL_DIR}/.specify/memory" "memory"
-smart_copy "${EXTRACTED_ROOT}/templates" "${INSTALL_DIR}/.specify/templates" "templates"
+smart_copy "${EXTRACTED_ROOT}/.specify/memory" "${INSTALL_DIR}/.specify/memory" "memory"
+smart_copy "${EXTRACTED_ROOT}/.specify/templates" "${INSTALL_DIR}/.specify/templates" "templates"
 
 echo ""
 printf "${GREEN}Installation complete!${NC}\n"
