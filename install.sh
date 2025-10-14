@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AI Codex Installer
-# Initializes specify settings and downloads the latest release to .specify/ directory
+# Downloads the latest release and installs to .specify/ directory
 
 set -e
 
@@ -21,20 +21,6 @@ echo ""
 
 # Check dependencies
 command -v curl >/dev/null 2>&1 || { printf "${RED}Error: curl is required but not installed.${NC}\n" >&2; exit 1; }
-
-# Step 1: Initialize specify settings
-echo "Initializing specify settings..."
-if command -v uvx >/dev/null 2>&1; then
-    yes | uvx --from git+https://github.com/github/spec-kit.git specify init . --ai claude --ignore-agent-tools --script sh || {
-        printf "${YELLOW}Warning: specify init command failed or was cancelled${NC}\n"
-    }
-    printf "${GREEN}✓ Specify settings initialized${NC}\n"
-    echo ""
-else
-    printf "${YELLOW}Warning: uvx not found. Skipping specify initialization.${NC}\n"
-    printf "${YELLOW}To install uvx, visit: https://docs.astral.sh/uv/${NC}\n"
-    echo ""
-fi
 
 # Get latest release info
 echo "Fetching latest release information..."
