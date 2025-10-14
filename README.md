@@ -5,6 +5,14 @@ AI-driven framework for Spec-Driven Development — replaces GitHub's Spec Kit t
 
 **Important:** Navigate to your project root directory before running the installation script.
 
+### Step 1: Install spec-kit (Required)
+
+Before installing ai-codex, you need to manually download and install spec-kit:
+
+Please refer to [@github/spec-kit/files/src/specify_cli](https://github.com/github/spec-kit/tree/main/files/src/specify_cli) for installation instructions.
+
+### Step 2: Install AI Codex
+
 To install or update the AI Codex templates and memory files in your project:
 
 ```bash
@@ -30,7 +38,6 @@ INSTALL_DIR=/path/to/your/project ./install.sh
 ```
 
 The script will:
-1. Initialize specify settings using `uvx` (if available)
-2. Download the latest release from GitHub
-3. Extract and install to `.specify/memory/` and `.specify/templates/` directories
-4. Override duplicate files while preserving non-duplicate files in the installation directory (current directory by default)
+1. Download the latest release from GitHub
+2. Extract and install to `.specify/memory/` and `.specify/templates/` directories
+3. Override duplicate files while preserving non-duplicate files in the installation directory (current directory by default)
