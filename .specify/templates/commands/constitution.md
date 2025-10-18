@@ -16,7 +16,7 @@ You are updating the project constitution at `.specify/memory/constitution.md`. 
 
 Follow this execution flow:
 
-1. Load the existing constitution template at `.specify/memory/constitution.md`.
+1. **Load context**: Read `.specify/memory/variables.json` for centralized configuration values (e.g., branch_pattern). Load the existing constitution template at `.specify/memory/constitution.md`.
    - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
    **IMPORTANT**: The user might require less or more principles than the ones used in the template. If a number is specified, respect that - follow the general template. You will update the doc accordingly.
 
