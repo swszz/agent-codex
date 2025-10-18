@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2025.10.18] - 2025.10.18
 
 ### Changes
+- Add comprehensive Mermaid flowchart documenting spec-kit workflow to README (#18)
+
+
+## [2025.10.18] - 2025.10.18
+
+### Changes
 - Update spec-kit installation link in README
 
 
@@ -69,5 +75,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.18-b4bbe66...HEAD
-[2025.10.18]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.18-b4bbe66
+
+[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.18-54b5c2b...HEAD
+[2025.10.18]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.18-54b5c2b
