@@ -33,4 +33,9 @@
 - Breaking changes require minimum 1 version deprecation period
 - Database migrations are forward-only
 
+### VIII. Variables from Memory
+- Always load `.specify/memory/variables.json` first
+- Use variables for project-wide configuration and template references
+- Keep variables synchronized across all script templates
+
 **Version**: 1.0.0 | **Ratified**: 2025-10-13
