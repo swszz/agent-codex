@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2025.10.18] - 2025.10.18
+
+### Changes
+- Update spec-kit installation link in README
+
+
 ## [2025.10.14] - 2025.10.14
 
 ### Changes
@@ -62,5 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.14-bb95ab5...HEAD
-[2025.10.14]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.14-bb95ab5
+
+[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.18-b4bbe66...HEAD
+[2025.10.18]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.18-b4bbe66
