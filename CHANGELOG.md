@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2025.10.18] - 2025.10.18
 
 ### Changes
+- feat: Add variables.json loading to all command templates
+
+
+## [2025.10.18] - 2025.10.18
+
+### Changes
 - Add configurable branch pattern to variables.json (#20)
 
 
@@ -90,5 +96,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.18-9a7a33a...HEAD
-[2025.10.18]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.18-9a7a33a
+
+[Unreleased]: https://github.com/swszz/ai-codex/compare/v2025.10.18-07771d1...HEAD
+[2025.10.18]: https://github.com/swszz/ai-codex/releases/tag/v2025.10.18-07771d1
