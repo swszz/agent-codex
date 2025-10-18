@@ -9,7 +9,7 @@ AI-driven framework for Spec-Driven Development — replaces GitHub's Spec Kit t
 
 Before installing ai-codex, you need to manually download and install spec-kit:
 
-Please refer to [@github/spec-kit/files/src/specify_cli](https://github.com/github/spec-kit/tree/main/files/src/specify_cli) for installation instructions.
+Please refer to [github/spec-kit](https://github.com/github/spec-kit) for installation instructions.
 
 ### Step 2: Install AI Codex
 
