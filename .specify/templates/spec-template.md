@@ -1,6 +1,6 @@
 # Feature Specification: [FEATURE NAME]
 
-**Feature Branch**: `[###-feature-name]`  
+**Feature Branch**: `[branch_pattern]`  
 **Created**: [DATE]  
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
