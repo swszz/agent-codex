@@ -33,26 +33,22 @@ After implementing any feature, update the relevant `.agent` documentation to en
 
 ## Custom Commands
 
+This repository includes a complete workflow for spec-driven development with the following commands:
+
 ### /specify - Create Feature Specification
 
 Creates a comprehensive feature specification from natural language requirements.
 
-**Usage**:
-```
-/specify [feature description]
-```
+**Usage**: `/specify [feature description]`
 
-**Example**:
-```
-/specify I want to add user authentication with OAuth2 support
-```
+**Example**: `/specify I want to add user authentication with OAuth2 support`
 
 **What it does**:
 1. Analyzes your feature description
 2. Generates a concise short name (e.g., "oauth2-user-auth")
-3. Creates directory structure: `.agent/tasks/[short-name]/`
-4. Writes a complete specification at `.agent/tasks/[short-name]/spec.md`
-5. Creates a validation checklist at `.agent/tasks/[short-name]/checklists/requirements.md`
+3. Creates directory structure: `.agent/tasks/[date]/[short-name]/`
+4. Writes a complete specification at `.agent/tasks/[date]/[short-name]/spec.md`
+5. Creates a validation checklist at `.agent/tasks/[date]/[short-name]/checklists/requirements.md`
 6. Validates the specification quality
 7. Asks clarifying questions if needed (max 3)
 
@@ -62,6 +58,213 @@ Creates a comprehensive feature specification from natural language requirements
 - Written for non-technical stakeholders
 - Every requirement must be testable
 - Success criteria must be measurable and technology-agnostic
+
+---
+
+### /clarify - Clarify Specification
+
+Identifies underspecified areas in the feature specification and asks targeted clarification questions.
+
+**Usage**: `/clarify [optional context]`
+
+**When to use**: After `/specify` and before `/plan` to reduce ambiguity
+
+**What it does**:
+1. Analyzes the current feature spec for ambiguities and gaps
+2. Asks up to 5 highly targeted clarification questions
+3. Provides recommended answers based on best practices
+4. Updates the spec with answers directly
+
+**Question types covered**:
+- Functional scope and behavior
+- Data model and entities
+- Non-functional requirements (performance, security, scalability)
+- Integration points and dependencies
+- Edge cases and error handling
+
+---
+
+### /checklist - Generate Custom Checklist
+
+Creates a custom checklist to validate requirements quality (like "unit tests for requirements").
+
+**Usage**: `/checklist [checklist type or focus area]`
+
+**Example**: `/checklist UX requirements` or `/checklist security`
+
+**What it does**:
+1. Asks clarifying questions about checklist focus and depth
+2. Generates a requirements quality checklist in `.agent/tasks/[date]/[feature-name]/checklists/[type].md`
+3. Creates items that test requirements quality, NOT implementation
+
+**Checklist validates**:
+- Completeness: Are all necessary requirements documented?
+- Clarity: Are requirements specific and unambiguous?
+- Consistency: Do requirements align without conflicts?
+- Coverage: Are all scenarios and edge cases addressed?
+- Measurability: Can requirements be objectively verified?
+
+---
+
+### /plan - Create Implementation Plan
+
+Generates technical design and implementation plan from the specification.
+
+**Usage**: `/plan [optional context]`
+
+**Prerequisites**: Completed and clarified specification
+
+**What it does**:
+1. Reads spec.md and constitution.md (if exists)
+2. Creates plan.md with technical context and architecture decisions
+3. Phase 0: Generates research.md (technical decisions and unknowns)
+4. Phase 1: Generates data-model.md, contracts/, quickstart.md
+5. Updates CLAUDE.md with new technologies
+
+**Outputs**:
+- `plan.md` - Implementation plan with tech stack and structure
+- `research.md` - Technical decisions and rationale
+- `data-model.md` - Entity definitions and relationships
+- `contracts/` - API contracts (REST/GraphQL schemas)
+- `quickstart.md` - Integration test scenarios
+
+---
+
+### /tasks - Generate Task List
+
+Creates an actionable, dependency-ordered task list for implementation.
+
+**Usage**: `/tasks [optional context]`
+
+**Prerequisites**: Completed plan.md with technical design
+
+**What it does**:
+1. Reads plan.md, spec.md, and optional design docs
+2. Generates tasks.md organized by user story (P1, P2, P3...)
+3. Each user story becomes independently implementable and testable
+4. Marks parallelizable tasks with [P]
+5. Includes file paths and clear descriptions
+
+**Task organization**:
+- Phase 1: Setup (project initialization)
+- Phase 2: Foundational (blocking prerequisites)
+- Phase 3+: User Stories (one phase per story, in priority order)
+- Final Phase: Polish and cross-cutting concerns
+
+**Format**: `[TaskID] [P?] [Story?] Description with file path`
+
+---
+
+### /implement - Execute Implementation
+
+Processes and executes all tasks defined in tasks.md.
+
+**Usage**: `/implement [optional context]`
+
+**Prerequisites**: Completed tasks.md
+
+**What it does**:
+1. Checks all checklists are complete (or asks permission to proceed)
+2. Loads tasks.md, plan.md, spec.md, and all design docs
+3. Executes tasks phase-by-phase in dependency order
+4. Respects parallelization markers [P]
+5. Marks completed tasks with [X]
+6. Reports progress after each task
+
+**Execution rules**:
+- Setup first: Initialize project structure, dependencies, configuration
+- Tests before code: If TDD approach specified
+- Respect dependencies: Sequential tasks in order, parallel tasks together
+- Validation checkpoints: Verify each phase completion
+
+---
+
+### /analyze - Cross-Artifact Analysis
+
+Performs quality analysis across spec.md, plan.md, and tasks.md to identify inconsistencies.
+
+**Usage**: `/analyze [optional context]`
+
+**Prerequisites**: Completed tasks.md (run after `/tasks`)
+
+**What it does**:
+1. Loads spec.md, plan.md, tasks.md, and constitution.md
+2. Detects duplications, ambiguities, gaps, and conflicts
+3. Validates constitution alignment
+4. Checks requirement coverage by tasks
+5. Produces a detailed analysis report (read-only, no file modifications)
+
+**Detection passes**:
+- Duplication detection
+- Ambiguity detection (vague terms, placeholders)
+- Underspecification
+- Constitution alignment
+- Coverage gaps
+- Inconsistencies
+
+**Severity levels**: CRITICAL, HIGH, MEDIUM, LOW
+
+---
+
+### /constitution - Manage Project Constitution
+
+Creates or updates the project constitution with development principles.
+
+**Usage**: `/constitution [optional principle inputs]`
+
+**What it does**:
+1. Loads existing constitution template from `.agent/constitution.md`
+2. Collects or derives values for placeholders
+3. Updates constitution with principles and governance rules
+4. Propagates changes to dependent templates
+5. Versions constitution (semantic versioning: MAJOR.MINOR.PATCH)
+
+**Constitution includes**:
+- Project principles (non-negotiable rules)
+- Governance procedures
+- Amendment policies
+- Compliance expectations
+
+---
+
+## Complete Workflow
+
+The recommended workflow for spec-driven development:
+
+```
+1. /specify [feature description]
+   └─> Creates spec.md with user stories and requirements
+
+2. /clarify (optional but recommended)
+   └─> Resolves ambiguities in specification
+
+3. /checklist [focus area] (optional, can create multiple)
+   └─> Validates requirements quality
+
+4. /plan
+   └─> Generates technical design (plan.md, research.md, data-model.md, contracts/)
+
+5. /tasks
+   └─> Creates actionable task list organized by user story
+
+6. /analyze (optional)
+   └─> Validates consistency across all artifacts
+
+7. /implement
+   └─> Executes implementation phase-by-phase
+```
+
+**Quick start for simple features**:
+```
+/specify [description] → /plan → /tasks → /implement
+```
+
+**Full workflow for complex features**:
+```
+/specify [description] → /clarify → /checklist → /plan → /tasks → /analyze → /implement
+```
+
+---
 
 ## Specification Writing Guidelines
 
