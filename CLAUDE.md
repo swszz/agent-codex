@@ -11,7 +11,7 @@ This is the **agent-codex** repository, an AI-based Spec-Driven Development fram
 All important documentation lives in the `.agent` folder with the following structure:
 
 - **tasks/**: PRD & implementation plans for each feature
-  - Each feature has its own directory: `.agent/tasks/[feature-name]/`
+  - Each feature has its own directory: `.agent/tasks/[date]/[feature-name]/`
   - Contains `spec.md` (specification) and `checklists/` (validation checklists)
 - **system/**: Documents the current state of the system including:
   - Project structure
