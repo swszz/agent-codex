@@ -10,10 +10,13 @@ You are tasked with creating a comprehensive feature specification based on user
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding. If the input is empty, ask the user to provide a feature description.
+You **MUST** consider the user input before proceeding. If the input is empty, ask the user to provide a feature
+description.
 
 ## Process
+
 ### 1. **Generate a concise short name** (2-4 words) for the branch:
+
     - Analyze the feature description and extract the most meaningful keywords
     - Create a 2-4 word short name that captures the essence of the feature
     - Use action-noun format when possible (e.g., "add-user-auth", "fix-payment-bug")
@@ -26,14 +29,18 @@ You **MUST** consider the user input before proceeding. If the input is empty, a
         - "Fix payment processing timeout bug" → "fix-payment-timeout"
 
 ### 2. Create Feature Directory Structure
+
 Create the following directory structure in `.agent/tasks/[yyyy-MM-dd]/[short-name]/`:
+
 - `spec.md` - The feature specification
 - `checklist/requirements.md` - Quality validation checklist
 
 ### 3. Load Specification Template
+
 Read `.agent/templates/spec-template.md` to understand the required sections and structure.
 
 ### 4. Follow this execution flow:
+
     1. Parse user description from Input
        If empty: ERROR "No feature description provided"
     2. Extract key concepts from description
@@ -61,18 +68,21 @@ Read `.agent/templates/spec-template.md` to understand the required sections and
 ### 5. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
 For unclear aspects:
+
 - Make informed guesses based on context and industry standards
 - Document assumptions in the Assumptions section
 - Only use [NEEDS CLARIFICATION: specific question] for critical decisions where:
-  - The choice significantly impacts scope or user experience
-  - Multiple reasonable interpretations exist
-  - No reasonable default exists
+    - The choice significantly impacts scope or user experience
+    - Multiple reasonable interpretations exist
+    - No reasonable default exists
 - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
 - Prioritize: scope > security/privacy > user experience > technical details
 
 ### 6. **Specification Quality Validation**: After writing the initial spec, validate it against quality criteria:
 
-#### a. **Create Spec Quality Checklist**: Generate a checklist file at `checklists/requirements.md` using the checklist template structure with these validation items:
+#### a. **Create Spec Quality Checklist**: Generate a checklist file at
+
+`checklists/requirements.md` using the checklist template structure with these validation items:
 
       ```markdown
       # Specification Quality Checklist: [FEATURE NAME]
@@ -105,9 +115,13 @@ For unclear aspects:
       - [ ] User scenarios cover primary flows
       - [ ] Feature meets measurable outcomes defined in Success Criteria
       - [ ] No implementation details leak into specification
+
+        ## Notes
+      - Items marked incomplete require spec updates before `/clarify` or `/plan`
       ```
 
 #### b. **Run Validation Check**: Review the spec against each checklist item:
+
 - For each item, determine if it passes or fails
 - Document specific issues found (quote relevant spec sections)
 
@@ -158,6 +172,8 @@ c. **Handle Validation Results**:
 
 d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-### 7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/clarify` or `/plan`).
+### 7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (
+
+`/clarify` or `/plan`).
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
