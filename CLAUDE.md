@@ -35,13 +35,13 @@ After implementing any feature, update the relevant `.agent` documentation to en
 
 This repository includes a complete workflow for spec-driven development with the following commands:
 
-### /specify - Create Feature Specification
+### /feature.specify - Create Feature Specification
 
 Creates a comprehensive feature specification from natural language requirements.
 
-**Usage**: `/specify [feature description]`
+**Usage**: `/feature.specify [feature description]`
 
-**Example**: `/specify I want to add user authentication with OAuth2 support`
+**Example**: `/feature.specify I want to add user authentication with OAuth2 support`
 
 **What it does**:
 1. Analyzes your feature description
@@ -61,13 +61,13 @@ Creates a comprehensive feature specification from natural language requirements
 
 ---
 
-### /clarify - Clarify Specification
+### /feature.clarify - Clarify Specification
 
 Identifies underspecified areas in the feature specification and asks targeted clarification questions.
 
-**Usage**: `/clarify [optional context]`
+**Usage**: `/feature.clarify [optional context]`
 
-**When to use**: After `/specify` and before `/plan` to reduce ambiguity
+**When to use**: After `/feature.specify` and before `/feature.plan` to reduce ambiguity
 
 **What it does**:
 1. Analyzes the current feature spec for ambiguities and gaps
@@ -84,13 +84,13 @@ Identifies underspecified areas in the feature specification and asks targeted c
 
 ---
 
-### /checklist - Generate Custom Checklist
+### /feature.checklist - Generate Custom Checklist
 
 Creates a custom checklist to validate requirements quality (like "unit tests for requirements").
 
-**Usage**: `/checklist [checklist type or focus area]`
+**Usage**: `/feature.checklist [checklist type or focus area]`
 
-**Example**: `/checklist UX requirements` or `/checklist security`
+**Example**: `/feature.checklist UX requirements` or `/feature.checklist security`
 
 **What it does**:
 1. Asks clarifying questions about checklist focus and depth
@@ -106,11 +106,11 @@ Creates a custom checklist to validate requirements quality (like "unit tests fo
 
 ---
 
-### /plan - Create Implementation Plan
+### /feature.plan - Create Implementation Plan
 
 Generates technical design and implementation plan from the specification.
 
-**Usage**: `/plan [optional context]`
+**Usage**: `/feature.plan [optional context]`
 
 **Prerequisites**: Completed and clarified specification
 
@@ -130,11 +130,11 @@ Generates technical design and implementation plan from the specification.
 
 ---
 
-### /tasks - Generate Task List
+### /feature.tasks - Generate Task List
 
 Creates an actionable, dependency-ordered task list for implementation.
 
-**Usage**: `/tasks [optional context]`
+**Usage**: `/feature.tasks [optional context]`
 
 **Prerequisites**: Completed plan.md with technical design
 
@@ -155,11 +155,11 @@ Creates an actionable, dependency-ordered task list for implementation.
 
 ---
 
-### /implement - Execute Implementation
+### /feature.implement - Execute Implementation
 
 Processes and executes all tasks defined in tasks.md.
 
-**Usage**: `/implement [optional context]`
+**Usage**: `/feature.implement [optional context]`
 
 **Prerequisites**: Completed tasks.md
 
@@ -179,13 +179,13 @@ Processes and executes all tasks defined in tasks.md.
 
 ---
 
-### /analyze - Cross-Artifact Analysis
+### /feature.analyze - Cross-Artifact Analysis
 
 Performs quality analysis across spec.md, plan.md, and tasks.md to identify inconsistencies.
 
-**Usage**: `/analyze [optional context]`
+**Usage**: `/feature.analyze [optional context]`
 
-**Prerequisites**: Completed tasks.md (run after `/tasks`)
+**Prerequisites**: Completed tasks.md (run after `/feature.tasks`)
 
 **What it does**:
 1. Loads spec.md, plan.md, tasks.md, and constitution.md
@@ -206,11 +206,11 @@ Performs quality analysis across spec.md, plan.md, and tasks.md to identify inco
 
 ---
 
-### /constitution - Manage Project Constitution
+### /feature.constitution - Manage Project Constitution
 
 Creates or updates the project constitution with development principles.
 
-**Usage**: `/constitution [optional principle inputs]`
+**Usage**: `/feature.constitution [optional principle inputs]`
 
 **What it does**:
 1. Loads existing constitution template from `.agent/constitution.md`
@@ -232,36 +232,36 @@ Creates or updates the project constitution with development principles.
 The recommended workflow for spec-driven development:
 
 ```
-1. /specify [feature description]
+1. /feature.specify [feature description]
    └─> Creates spec.md with user stories and requirements
 
-2. /clarify (optional but recommended)
+2. /feature.clarify (optional but recommended)
    └─> Resolves ambiguities in specification
 
-3. /checklist [focus area] (optional, can create multiple)
+3. /feature.checklist [focus area] (optional, can create multiple)
    └─> Validates requirements quality
 
-4. /plan
+4. /feature.plan
    └─> Generates technical design (plan.md, research.md, data-model.md, contracts/)
 
-5. /tasks
+5. /feature.tasks
    └─> Creates actionable task list organized by user story
 
-6. /analyze (optional)
+6. /feature.analyze (optional)
    └─> Validates consistency across all artifacts
 
-7. /implement
+7. /feature.implement
    └─> Executes implementation phase-by-phase
 ```
 
 **Quick start for simple features**:
 ```
-/specify [description] → /plan → /tasks → /implement
+/feature.specify [description] → /feature.plan → /feature.tasks → /feature.implement
 ```
 
 **Full workflow for complex features**:
 ```
-/specify [description] → /clarify → /checklist → /plan → /tasks → /analyze → /implement
+/feature.specify [description] → /feature.clarify → /feature.checklist → /feature.plan → /feature.tasks → /feature.analyze → /feature.implement
 ```
 
 ---
