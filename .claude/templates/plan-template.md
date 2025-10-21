@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `.agent/tasks/[date]/[feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/plan` command. See `.agent/templates/commands/plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/plan` command. See `.claude/commands/feature/feature.plan.md` for the execution workflow.
 
 ## Summary
 

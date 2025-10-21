@@ -14,7 +14,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Locate the current feature directory in `.agent/tasks/` by finding the most recent feature folder (sorted by date, then by modification time). Set FEATURE_DIR to `.agent/tasks/[date]/[feature-name]/`. Set FEATURE_SPEC to `FEATURE_DIR/spec.md` and IMPL_PLAN to `FEATURE_DIR/plan.md`.
 
-2. **Load context**: Read FEATURE_SPEC and `.agent/constitution.md` (if it exists). Create IMPL_PLAN from the `.agent/templates/plan-template.md` template.
+2. **Load context**: Read FEATURE_SPEC and `.agent/constitution.md` (if it exists). Create IMPL_PLAN from the `.claude/templates/plan-template.md` template.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")

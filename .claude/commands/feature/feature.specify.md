@@ -37,7 +37,7 @@ Create the following directory structure in `.agent/tasks/[yyyy-MM-dd]/[short-na
 
 ### 3. Load Specification Template
 
-Read `.agent/templates/spec-template.md` to understand the required sections and structure.
+Read `.claude/templates/spec-template.md` to understand the required sections and structure.
 
 ### 4. Follow this execution flow:
 
