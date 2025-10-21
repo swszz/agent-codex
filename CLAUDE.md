@@ -23,9 +23,17 @@ All important documentation lives in the `.agent` folder with the following stru
   - How to add a schema migration
   - How to add a new page route
   - Other common development tasks
+- **README.md**: Index of all available documentation
+
+The `.claude` folder contains:
+
+- **commands/**: Custom command definitions for spec-driven development workflow
+  - Feature specification, planning, tasks generation, and implementation commands
 - **templates/**: Templates for documentation
   - `spec-template.md`: Template for feature specifications
-- **README.md**: Index of all available documentation
+  - `plan-template.md`: Template for implementation plans
+  - `tasks-template.md`: Template for task lists
+  - `checklist-template.md`: Template for validation checklists
 
 **IMPORTANT**: Always read `.agent/README.md` first before planning any implementation to get proper context.
 
