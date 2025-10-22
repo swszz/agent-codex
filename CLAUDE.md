@@ -6,6 +6,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **agent-codex** repository, an AI-based Spec-Driven Development framework.
 
+## Current Projects
+
+### URL Content Extractor
+
+**Status**: In Planning
+**Location**: `.agent/tasks/2025-10-19/url-content-extractor/`
+**Tech Stack**: Kotlin, Spring Boot 3.4+, Gradle 8.11+, JDK 25+
+
+**Description**: Web content extraction application that accepts URLs as input and outputs clean, readable main body content while filtering out navigation, ads, and sidebars.
+
+**Key Technologies**:
+- **Language**: Kotlin (null safety, coroutines)
+- **Framework**: Spring Boot 3.4+ (REST API + server-side rendering)
+- **Build Tool**: Gradle 8.11+ with Kotlin DSL
+- **Runtime**: JDK 25+ (virtual threads via Project Loom)
+- **HTML Parsing**: Jsoup 1.18.1 (content extraction, HTML cleaning)
+- **HTTP Client**: Spring WebClient (reactive, non-blocking)
+- **Frontend**: Thymeleaf + HTMX (server-side rendering with progressive enhancement)
+- **Testing**: JUnit 5 + MockK + Spring Boot Test
+- **Security**: SSRF prevention, rate limiting (Bucket4j)
+
+**Architecture**: Layered REST API with server-side rendering (Controller → Service → HTTP Client → Content Parser)
+
+**Documentation**:
+- Specification: `.agent/tasks/2025-10-19/url-content-extractor/spec.md`
+- Implementation Plan: `.agent/tasks/2025-10-19/url-content-extractor/plan.md`
+- Technical Research: `.agent/tasks/2025-10-19/url-content-extractor/research.md`
+- Data Model: `.agent/tasks/2025-10-19/url-content-extractor/data-model.md`
+- API Contracts: `.agent/tasks/2025-10-19/url-content-extractor/contracts/openapi.yaml`
+- Quickstart Guide: `.agent/tasks/2025-10-19/url-content-extractor/quickstart.md`
+
 ## Documentation Structure
 
 All important documentation lives in the `.agent` folder with the following structure:
