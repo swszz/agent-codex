@@ -1,0 +1,459 @@
+openapi: 3.0.3
+info:
+  title: URL Content Extractor API
+  description: |
+    REST API for extracting main content from web pages.
+
+    The API accepts URLs and returns clean, readable content with navigation,
+    ads, and sidebars filtered out. Supports both JSON API responses and
+    server-side rendered HTML views.
+  version: 1.0.0
+  contact:
+    name: URL Content Extractor
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server (placeholder)
+
+tags:
+  - name: extraction
+    description: Content extraction operations
+  - name: ui
+    description: User interface endpoints
+
+paths:
+  /api/extract:
+    post:
+      tags:
+        - extraction
+      summary: Extract content from URL
+      description: |
+        Fetches a web page from the provided URL and extracts the main body content,
+        filtering out navigation elements, advertisements, sidebars, and other
+        non-essential page elements.
+
+        **Success Criteria**:
+        - Extraction completes in under 5 seconds for typical pages (SC-001)
+        - Successfully extracts content from 90%+ of standard article/blog pages (SC-002)
+        - Returns only main body text without navigation/ads in 95% of cases (SC-004)
+
+        **Error Handling**:
+        - Returns 400 for invalid URL format (FR-002)
+        - Returns 404 for unreachable URLs (FR-008)
+        - Returns 422 for pages with no extractable content
+        - Returns 504 for timeout (10s limit)
+      operationId: extractContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractionRequest'
+            examples:
+              blogArticle:
+                summary: Blog article URL
+                value:
+                  url: "https://example.com/blog/my-article"
+              newsArticle:
+                summary: News article URL
+                value:
+                  url: "https://news.example.com/2025/10/19/breaking-news"
+      responses:
+        '200':
+          description: Content successfully extracted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionSuccessResponse'
+              examples:
+                successfulExtraction:
+                  summary: Successful content extraction
+                  value:
+                    success: true
+                    requestedUrl: "https://example.com/blog/my-article"
+                    processingTimeMs: 1250
+                    content:
+                      title: "How to Build Web Scrapers"
+                      text: "Web scraping is the process of extracting data from websites..."
+                      sourceUrl: "https://example.com/blog/my-article"
+                      extractedAt: "2025-10-19T10:30:00Z"
+                      contentLength: 5420
+                      language: "en"
+                      structuredContent:
+                        - type: "HEADING"
+                          content: "Introduction"
+                          level: 1
+                        - type: "PARAGRAPH"
+                          content: "Web scraping is the process of extracting data from websites..."
+                        - type: "HEADING"
+                          content: "Key Techniques"
+                          level: 2
+                        - type: "LIST_ITEM"
+                          content: "HTML parsing with libraries"
+                        - type: "LIST_ITEM"
+                          content: "Handling dynamic content"
+        '400':
+          description: Invalid URL format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                invalidUrl:
+                  summary: Malformed URL
+                  value:
+                    success: false
+                    requestedUrl: "not-a-valid-url"
+                    processingTimeMs: 5
+                    error:
+                      errorCode: "INVALID_URL"
+                      message: "The provided URL format is invalid. Please enter a valid HTTP or HTTPS URL."
+                      details: "URL must start with http:// or https://"
+        '403':
+          description: URL blocked for security reasons
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                blockedUrl:
+                  summary: SSRF prevention - blocked private IP
+                  value:
+                    success: false
+                    requestedUrl: "http://192.168.1.1/admin"
+                    processingTimeMs: 3
+                    error:
+                      errorCode: "BLOCKED_URL"
+                      message: "This URL cannot be accessed for security reasons."
+                      details: "Private IP addresses and localhost are not allowed"
+        '404':
+          description: Target URL not reachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                unreachable:
+                  summary: Site not found
+                  value:
+                    success: false
+                    requestedUrl: "https://nonexistent-site-12345.com/article"
+                    processingTimeMs: 3000
+                    error:
+                      errorCode: "UNREACHABLE"
+                      message: "The website could not be reached. Please check the URL and try again."
+                      details: "UnknownHostException: nonexistent-site-12345.com"
+        '413':
+          description: Content too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                tooLarge:
+                  summary: Response exceeds size limit
+                  value:
+                    success: false
+                    requestedUrl: "https://example.com/huge-page"
+                    processingTimeMs: 2000
+                    error:
+                      errorCode: "CONTENT_TOO_LARGE"
+                      message: "The page content is too large to process (limit: 5MB)."
+        '415':
+          description: Unsupported content type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                unsupportedType:
+                  summary: Non-HTML content
+                  value:
+                    success: false
+                    requestedUrl: "https://example.com/document.pdf"
+                    processingTimeMs: 500
+                    error:
+                      errorCode: "UNSUPPORTED_CONTENT"
+                      message: "This content type is not supported. Only HTML pages can be extracted."
+                      details: "Content-Type: application/pdf"
+        '422':
+          description: No extractable content found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                noContent:
+                  summary: Valid page but no main content
+                  value:
+                    success: false
+                    requestedUrl: "https://example.com/empty"
+                    processingTimeMs: 800
+                    error:
+                      errorCode: "NO_CONTENT"
+                      message: "No main content could be extracted from this page."
+                      details: "Page contains only navigation and boilerplate elements"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                internalError:
+                  summary: Unexpected server error
+                  value:
+                    success: false
+                    requestedUrl: "https://example.com/article"
+                    processingTimeMs: 100
+                    error:
+                      errorCode: "INTERNAL_ERROR"
+                      message: "An unexpected error occurred while processing your request. Please try again."
+        '504':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionErrorResponse'
+              examples:
+                timeout:
+                  summary: Site took too long to respond
+                  value:
+                    success: false
+                    requestedUrl: "https://very-slow-site.com/article"
+                    processingTimeMs: 10000
+                    error:
+                      errorCode: "TIMEOUT"
+                      message: "The request timed out. The website took too long to respond."
+                      details: "Timeout after 10 seconds"
+
+  /:
+    get:
+      tags:
+        - ui
+      summary: Home page
+      description: |
+        Renders the home page with URL input form.
+        Server-side rendered with Thymeleaf.
+      operationId: getHomePage
+      responses:
+        '200':
+          description: Home page HTML
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML page with URL input form
+
+  /result:
+    get:
+      tags:
+        - ui
+      summary: Display extraction result
+      description: |
+        Server-side rendered page showing extracted content or error message.
+        Called by HTMX from home page after extraction.
+      operationId: getResultPage
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The URL that was extracted
+      responses:
+        '200':
+          description: Result page HTML
+          content:
+            text/html:
+              schema:
+                type: string
+                description: HTML page with extracted content or error message
+
+components:
+  schemas:
+    ExtractionRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 2048
+          description: The URL to extract content from (must be http or https)
+          example: "https://example.com/article"
+      description: Request to extract content from a URL
+
+    ExtractionSuccessResponse:
+      type: object
+      required:
+        - success
+        - requestedUrl
+        - processingTimeMs
+        - content
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+          description: Always true for success responses
+        requestedUrl:
+          type: string
+          format: uri
+          description: The original URL from the request
+          example: "https://example.com/article"
+        processingTimeMs:
+          type: integer
+          format: int64
+          description: Time taken to process the request in milliseconds
+          example: 1250
+        content:
+          $ref: '#/components/schemas/ExtractedContent'
+
+    ExtractionErrorResponse:
+      type: object
+      required:
+        - success
+        - requestedUrl
+        - processingTimeMs
+        - error
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+          description: Always false for error responses
+        requestedUrl:
+          type: string
+          description: The original URL from the request
+          example: "https://example.com/article"
+        processingTimeMs:
+          type: integer
+          format: int64
+          description: Time taken before failure in milliseconds
+          example: 100
+        error:
+          $ref: '#/components/schemas/ExtractionError'
+
+    ExtractedContent:
+      type: object
+      required:
+        - text
+        - structuredContent
+        - sourceUrl
+        - extractedAt
+        - contentLength
+      properties:
+        title:
+          type: string
+          nullable: true
+          description: The page title (null if not found)
+          example: "How to Build Web Scrapers"
+        text:
+          type: string
+          minLength: 1
+          description: The extracted plain text content
+          example: "Web scraping is the process of extracting data from websites..."
+        structuredContent:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ContentBlock'
+          description: Hierarchical content with formatting preserved
+        sourceUrl:
+          type: string
+          format: uri
+          description: The actual source URL (may differ from request due to redirects)
+          example: "https://example.com/blog/my-article"
+        extractedAt:
+          type: string
+          format: date-time
+          description: When the extraction was performed (ISO 8601)
+          example: "2025-10-19T10:30:00Z"
+        contentLength:
+          type: integer
+          minimum: 1
+          description: Character count of extracted text
+          example: 5420
+        language:
+          type: string
+          nullable: true
+          pattern: '^[a-z]{2}$'
+          description: Detected language code (ISO 639-1), null if not detected
+          example: "en"
+
+    ContentBlock:
+      type: object
+      required:
+        - type
+        - content
+      properties:
+        type:
+          type: string
+          enum:
+            - HEADING
+            - PARAGRAPH
+            - LIST_ITEM
+            - QUOTE
+            - CODE
+          description: The type of content block
+        content:
+          type: string
+          minLength: 1
+          description: The text content of this block
+          example: "Introduction"
+        level:
+          type: integer
+          nullable: true
+          minimum: 1
+          maximum: 6
+          description: Heading level (1-6), only for HEADING type, null otherwise
+          example: 1
+
+    ExtractionError:
+      type: object
+      required:
+        - errorCode
+        - message
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - INVALID_URL
+            - UNREACHABLE
+            - NO_CONTENT
+            - TIMEOUT
+            - BLOCKED_URL
+            - CONTENT_TOO_LARGE
+            - UNSUPPORTED_CONTENT
+            - INTERNAL_ERROR
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error message for end users
+          example: "The provided URL format is invalid. Please enter a valid HTTP or HTTPS URL."
+        details:
+          type: string
+          nullable: true
+          description: Additional technical details for debugging (optional)
+          example: "URL must start with http:// or https://"
+
+  examples:
+    BlogArticleRequest:
+      value:
+        url: "https://medium.com/@author/article-title"
+
+    NewsArticleRequest:
+      value:
+        url: "https://news.ycombinator.com/item?id=12345"
+
+  parameters:
+    UrlQueryParam:
+      name: url
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uri
+      description: The URL that was extracted

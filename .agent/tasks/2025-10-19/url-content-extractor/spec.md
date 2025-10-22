@@ -7,116 +7,122 @@
 
 ## Overview
 
-A simple application that extracts and displays the main content from any web page when given a URL. The application filters out navigation menus, advertisements, footers, and other non-essential elements to present only the core readable content of the page.
+A web content extraction application that accepts URLs as input and outputs the main body content of web pages. The application extracts clean, readable content from web pages while filtering out navigation elements, advertisements, sidebars, and other non-essential page elements to present only the core content to users.
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Extract Basic Web Content (Priority: P1)
+### User Story 1 - Basic Content Extraction (Priority: P1)
 
-A user wants to read the main article or content from a web page without distractions like ads, sidebars, and navigation menus. They provide a URL and receive clean, readable text content.
+As a user, I want to paste a URL and immediately see the main content of that webpage so I can read articles without distractions.
 
-**Why this priority**: This is the core functionality that delivers immediate value - the ability to extract and view clean content from any standard web page. Without this, the application has no purpose.
+**Why this priority**: This is the core value proposition - extracting and displaying readable content from any URL. Without this, the application has no purpose.
 
-**Independent Test**: Can be fully tested by entering a URL to a news article or blog post and verifying that the main text content is extracted and displayed while ads, navigation, and sidebars are excluded.
+**Independent Test**: Can be fully tested by entering a valid URL (e.g., news article, blog post) and verifying that the main text content is displayed without navigation menus, ads, or sidebars, delivering immediate reading value.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid URL to a blog post, **When** user inputs the URL, **Then** the application displays the blog post title and main content text
-2. **Given** a valid URL to a news article, **When** user inputs the URL, **Then** the application displays only the article content without ads or navigation elements
-3. **Given** a URL to a simple webpage with clear main content, **When** user inputs the URL, **Then** the content is extracted and displayed within 5 seconds
+1. **Given** a user opens the application, **When** they enter a valid URL of a blog article and submit, **Then** the main article text is displayed without navigation bars, comments sections, or advertisements
+2. **Given** a user has entered a URL, **When** the content is being extracted, **Then** they see a loading indicator showing progress
+3. **Given** a user views extracted content, **When** the content includes paragraphs and headings, **Then** the text formatting and structure are preserved for readability
 
 ---
 
-### User Story 2 - Handle Invalid URLs and Errors (Priority: P2)
+### User Story 2 - URL Validation and Error Handling (Priority: P2)
 
-A user attempts to extract content from URLs that are invalid, inaccessible, or don't contain extractable content. The application provides clear feedback about what went wrong.
+As a user, I want clear feedback when I enter an invalid URL or when content cannot be extracted so I understand what went wrong and can take corrective action.
 
-**Why this priority**: Essential for usability and preventing confusion when things don't work as expected. Users need to understand why content extraction failed.
+**Why this priority**: Essential for user experience and preventing confusion, but the application can technically function without sophisticated error handling in an MVP.
 
-**Independent Test**: Can be tested by providing invalid URLs, unreachable domains, or pages without content, and verifying appropriate error messages are shown for each case.
+**Independent Test**: Can be tested independently by entering various invalid inputs (malformed URLs, unreachable sites, pages without content) and verifying appropriate error messages are shown.
 
 **Acceptance Scenarios**:
 
-1. **Given** an invalid URL format (missing protocol, malformed), **When** user inputs the URL, **Then** the application displays a clear error message indicating the URL format is invalid
-2. **Given** a URL to a non-existent domain, **When** user inputs the URL, **Then** the application displays an error message indicating the page cannot be reached
-3. **Given** a URL that requires authentication, **When** user inputs the URL, **Then** the application displays an error message indicating access is restricted
+1. **Given** a user enters a malformed URL (missing protocol, invalid format), **When** they submit, **Then** they see a clear error message explaining the URL format is invalid
+2. **Given** a user enters a URL to a non-existent website, **When** the extraction fails, **Then** they see an error message indicating the site could not be reached
+3. **Given** a user enters a URL to a page with no extractable content, **When** extraction completes, **Then** they see a message indicating no main content was found
 
 ---
 
-### User Story 3 - View Formatted Content (Priority: P3)
+### User Story 3 - Content Export and Sharing (Priority: P3)
 
-A user wants to view the extracted content in a readable format that preserves basic structure like paragraphs, headings, and lists for better comprehension.
+As a user, I want to copy or export the extracted content so I can save it for later reading or share it with others.
 
-**Why this priority**: Enhances readability and user experience but the basic extraction (P1) already delivers core value. This is an improvement on top of the MVP.
+**Why this priority**: Enhances utility but not required for basic content extraction functionality. Users can manually copy text even without dedicated export features.
 
-**Independent Test**: Can be tested by extracting content from pages with structured content (headings, lists, paragraphs) and verifying that the structure is preserved in the output.
+**Independent Test**: Can be tested by extracting content from a URL and verifying that users can easily copy the text or download it in a readable format.
 
 **Acceptance Scenarios**:
 
-1. **Given** a URL with content that has headings, **When** user inputs the URL, **Then** the headings are clearly distinguished from body text in the output
-2. **Given** a URL with bulleted or numbered lists, **When** user inputs the URL, **Then** the lists are displayed with proper formatting
-3. **Given** a URL with multiple paragraphs, **When** user inputs the URL, **Then** paragraph breaks are preserved in the output
+1. **Given** extracted content is displayed, **When** the user clicks a "Copy" button, **Then** the full extracted text is copied to their clipboard
+2. **Given** extracted content is displayed, **When** the user selects text manually, **Then** they can copy selected portions using standard copy commands
+3. **Given** extracted content is displayed, **When** the user requests a download, **Then** the content is saved as a plain text file with the page title as the filename
 
 ---
 
 ### Edge Cases
 
-- What happens when a URL points to a PDF, image, or video file instead of a web page?
-- How does the system handle extremely large pages (e.g., 10MB+ of content)?
-- What happens when a page has multiple possible "main content" areas?
-- How does the system handle pages that are heavily JavaScript-dependent for content rendering?
-- What happens when a page uses non-standard encoding or special characters?
-- How does the system handle redirects (3xx status codes)?
+- What happens when a URL requires authentication or is behind a paywall?
+- How does the system handle pages with dynamic content loaded via JavaScript?
+- What happens when a URL redirects to another page?
+- How does the system handle very large pages (e.g., 10,000+ words)?
+- What happens when extracting content from non-HTML pages (PDFs, images, etc.)?
+- How does the system handle pages in different languages or character encodings?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST accept a URL as input from the user
-- **FR-002**: System MUST validate URL format before attempting to fetch content
-- **FR-003**: System MUST fetch the web page content from the provided URL
-- **FR-004**: System MUST extract the main content area from the fetched page, excluding navigation, advertisements, footers, and sidebars
-- **FR-005**: System MUST display the extracted content to the user in a readable format
-- **FR-006**: System MUST handle HTTP/HTTPS protocols
-- **FR-007**: System MUST provide clear error messages for invalid URLs
-- **FR-008**: System MUST provide clear error messages for unreachable URLs
-- **FR-009**: System MUST provide clear error messages when content cannot be extracted
-- **FR-010**: System MUST preserve basic text structure (paragraphs, headings, lists) in the extracted content
-- **FR-011**: System MUST handle standard character encodings (UTF-8, ISO-8859-1)
-- **FR-012**: System MUST handle HTTP redirects (301, 302 status codes)
+- **FR-001**: System MUST accept URL input from users in a text input field
+- **FR-002**: System MUST validate URL format before attempting extraction
+- **FR-003**: System MUST extract main body content from valid HTML web pages
+- **FR-004**: System MUST filter out navigation elements, headers, footers, sidebars, and advertisements from extracted content
+- **FR-005**: System MUST preserve content structure including paragraphs, headings, and lists
+- **FR-006**: System MUST display extracted content in a readable format
+- **FR-007**: System MUST show loading indicators during content extraction
+- **FR-008**: System MUST handle network errors and unreachable URLs gracefully
+- **FR-009**: System MUST provide clear error messages for invalid URLs or extraction failures
+- **FR-010**: System MUST allow users to copy extracted content to clipboard
+- **FR-011**: System MUST support common URL protocols (http, https)
+- **FR-012**: System MUST handle URL redirects transparently
 
 ### Key Entities
 
-- **URL Request**: Represents a user's request to extract content, containing the target URL and validation status
-- **Web Content**: Represents the fetched raw HTML content from the target URL
-- **Extracted Content**: Represents the cleaned and processed main content, including text and basic structure
+- **URL Request**: Represents a user's content extraction request, containing the target URL and extraction status
+- **Extracted Content**: The main body text and structure extracted from a web page, including headings, paragraphs, and formatting
+- **Extraction Result**: The outcome of an extraction attempt, including success/failure status, content (if successful), and error details (if failed)
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can successfully extract readable content from 90% of standard news articles and blog posts
-- **SC-002**: Content extraction completes within 10 seconds for pages up to 1MB in size
-- **SC-003**: Users receive clear, actionable error messages for all failure scenarios (invalid URL, network errors, extraction failures)
-- **SC-004**: Extracted content excludes navigation, advertisements, and non-content elements in 85% of test cases
-- **SC-005**: Users can complete the entire flow (input URL → view content) in under 30 seconds
-- **SC-006**: Basic text structure (headings, paragraphs, lists) is preserved in the extracted output
+- **SC-001**: Users can extract and view content from a URL in under 5 seconds for typical web pages (articles, blog posts)
+- **SC-002**: System successfully extracts readable main content from at least 90% of standard article/blog pages
+- **SC-003**: Users can complete the full workflow (enter URL, view content, copy text) in under 30 seconds
+- **SC-004**: Extracted content contains only main body text without navigation, ads, or sidebars in 95% of successful extractions
+- **SC-005**: Users receive clear, actionable error messages for 100% of failed extraction attempts
+- **SC-006**: System handles at least 100 concurrent extraction requests without performance degradation
 
 ## Assumptions
 
-- Users will primarily target standard web pages (blogs, news articles, documentation) rather than highly dynamic single-page applications
-- Content extraction uses heuristic-based or library-based approaches (similar to reader modes in browsers)
-- The application operates on publicly accessible URLs that don't require authentication
-- Network connectivity is available for fetching remote content
-- The application handles standard HTTP responses and doesn't require JavaScript rendering for basic content extraction
+- Users have internet connectivity to access web pages
+- Most target URLs will be publicly accessible web pages (not behind authentication)
+- Target web pages are primarily HTML-based content (not single-page applications with heavy JavaScript rendering)
+- Users want plain text content extraction rather than styled/formatted output
+- Content extraction does not need to preserve images, videos, or interactive elements
+- The application will be used primarily for reading articles, blog posts, and similar text-heavy content
 
 ## Out of Scope
 
-- Authentication or handling of password-protected content
-- Extraction of content from PDFs, images, or non-HTML documents
-- Saving or bookmarking extracted content for later viewing
-- User accounts or personalization features
-- Downloading or archiving web pages
-- Rendering JavaScript-heavy single-page applications
-- Translation or summarization of extracted content
+- Authentication to access password-protected content
+- Extracting content from JavaScript-heavy single-page applications requiring full browser rendering
+- Preserving or displaying images, videos, and multimedia content
+- Converting or extracting content from non-HTML formats (PDFs, Word documents)
+- Storing extraction history or user preferences
+- Batch processing of multiple URLs simultaneously
 - Browser extension or mobile app versions
+
+## Dependencies
+
+- Access to web content via HTTP/HTTPS protocols
+- Network connectivity for accessing external URLs
+- Content extraction library or service capable of identifying main content vs. boilerplate
