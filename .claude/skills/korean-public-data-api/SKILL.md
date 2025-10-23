@@ -1,3 +1,8 @@
+---
+name: korean-public-data-api
+description: Extract API request/response schema from Korean Public Data Portal (data.go.kr) documentation pages and generate structured JSON representation
+---
+
 # Korean Public Data Portal API Schema Extractor
 
 Extract API data structure from Korean Public Data Portal (data.go.kr) documentation pages and generate JSON schema.
