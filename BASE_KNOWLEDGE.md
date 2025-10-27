@@ -5,12 +5,13 @@ Claude Code의 확장 메커니즘과 커스터마이징 옵션에 대한 종합
 ## 목차
 
 1. [개념 비교표](#개념-비교표)
-2. [Slash Commands (슬래시 커맨드)](#slash-commands-슬래시-커맨드)
-3. [Sub-Agents (서브 에이전트)](#sub-agents-서브-에이전트)
-4. [Agent Skills (에이전트 스킬)](#agent-skills-에이전트-스킬)
-5. [Hooks (훅)](#hooks-훅)
-6. [Output Styles (출력 스타일)](#output-styles-출력-스타일)
-7. [Plugins (플러그인)](#plugins-플러그인)
+2. [아키텍처 다이어그램](#아키텍처-다이어그램)
+3. [Slash Commands (슬래시 커맨드)](#slash-commands-슬래시-커맨드)
+4. [Sub-Agents (서브 에이전트)](#sub-agents-서브-에이전트)
+5. [Agent Skills (에이전트 스킬)](#agent-skills-에이전트-스킬)
+6. [Hooks (훅)](#hooks-훅)
+7. [Output Styles (출력 스타일)](#output-styles-출력-스타일)
+8. [Plugins (플러그인)](#plugins-플러그인)
 
 ---
 
@@ -29,6 +30,227 @@ Claude Code의 확장 메커니즘과 커스터마이징 옵션에 대한 종합
 | **공유 방법** | Git 커밋 | Git 커밋 | Git 커밋 또는 플러그인 | Git 커밋 | Git 커밋 | 마켓플레이스 |
 | **인자 지원** | ✅ (`$1`, `$2`, `$ARGUMENTS`) | ✅ (프롬프트에 포함) | ✅ (스킬 내부 로직) | ✅ (JSON stdin) | ❌ | 컴포넌트별 다름 |
 | **Bash 실행** | ✅ (`!` prefix) | ✅ (Bash 도구 사용) | ✅ (도구 권한 내) | ✅ (직접 실행) | ❌ | 컴포넌트별 다름 |
+
+---
+
+## 아키텍처 다이어그램
+
+### 전체 구조 및 상호작용
+
+```mermaid
+graph TB
+    User[사용자]
+    Claude[Claude 메인 세션]
+
+    subgraph "확장 메커니즘"
+        SC[Slash Commands<br/>.claude/commands/]
+        SA[Sub-Agents<br/>.claude/agents/]
+        AS[Agent Skills<br/>.claude/skills/]
+        Hooks[Hooks<br/>settings.json]
+        OS[Output Styles<br/>.claude/output-styles/]
+    end
+
+    subgraph "실행 컨텍스트"
+        MainCtx[메인 컨텍스트]
+        AgentCtx[독립 컨텍스트]
+    end
+
+    subgraph "도구 레이어"
+        Tools[도구: Read, Write, Bash, etc.]
+    end
+
+    subgraph "배포 메커니즘"
+        Plugin[Plugin<br/>번들 패키지]
+        Git[Git 저장소]
+        Market[마켓플레이스]
+    end
+
+    %% 사용자 상호작용
+    User -->|"/command args"| SC
+    User -->|"요청"| Claude
+    User -->|"/output-style"| OS
+
+    %% Claude 메인 세션
+    Claude -->|"명시적 호출"| SC
+    Claude -->|"자동 활성화"| AS
+    Claude -->|"위임"| SA
+    OS -.->|"시스템 프롬프트<br/>대체"| Claude
+
+    %% 컨텍스트 관계
+    SC --> MainCtx
+    AS --> MainCtx
+    Claude --> MainCtx
+    SA --> AgentCtx
+
+    %% 도구 접근
+    MainCtx --> Tools
+    AgentCtx --> Tools
+
+    %% Hooks 이벤트
+    Tools -.->|"PreToolUse<br/>PostToolUse"| Hooks
+    Claude -.->|"SessionStart<br/>Stop"| Hooks
+    Hooks -->|"쉘 커맨드<br/>실행"| Tools
+
+    %% 배포
+    Plugin --> SC
+    Plugin --> SA
+    Plugin --> AS
+    Plugin --> Hooks
+    Git --> SC
+    Git --> SA
+    Git --> AS
+    Market --> Plugin
+
+    style User fill:#e1f5ff
+    style Claude fill:#fff4e1
+    style MainCtx fill:#f0f0f0
+    style AgentCtx fill:#f0f0f0
+    style Tools fill:#e8f5e9
+    style Plugin fill:#fce4ec
+```
+
+### 실행 흐름
+
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant C as Claude
+    participant SC as Slash Command
+    participant AS as Agent Skill
+    participant SA as Sub-Agent
+    participant H as Hook
+    participant T as 도구
+
+    %% Slash Command 흐름
+    U->>C: /review-pr 123
+    C->>SC: 프롬프트 확장
+    SC->>C: "PR #123을 리뷰하세요..."
+    C->>T: Read, Grep 실행
+    H-->>T: PreToolUse 감지
+    T->>C: 결과 반환
+    H-->>T: PostToolUse 감지
+    C->>U: 리뷰 완료
+
+    %% Agent Skill 자동 활성화
+    U->>C: "이 PDF에서 텍스트를 추출해주세요"
+    C->>AS: description 매칭으로 활성화
+    AS->>C: 추출 지침 제공
+    C->>T: Bash(pdftotext) 실행
+    C->>U: 추출된 텍스트
+
+    %% Sub-Agent 위임
+    U->>C: "코드 품질을 검토해주세요"
+    C->>SA: code-reviewer 위임
+    Note over SA: 독립 컨텍스트에서 작동
+    SA->>T: Read, Grep 실행
+    SA->>C: 리뷰 보고서
+    C->>U: 검토 결과
+
+    %% Hook 자동 실행
+    C->>T: git commit 시도
+    H->>T: PreToolUse Hook 실행
+    alt Hook 실패 (exit 2)
+        T->>C: 차단 (stderr 전달)
+        C->>U: "테스트 실패로 커밋 차단됨"
+    else Hook 성공 (exit 0)
+        T->>C: 커밋 완료
+        H->>T: PostToolUse Hook 실행
+        C->>U: 커밋 성공
+    end
+```
+
+### 우선순위 및 로딩
+
+```mermaid
+graph LR
+    subgraph "파일 우선순위"
+        P1[프로젝트 레벨<br/>.claude/]
+        P2[플러그인 레벨<br/>plugin/]
+        P3[사용자 레벨<br/>~/.claude/]
+        P4[내장 컴포넌트]
+
+        P1 -->|우선| P2
+        P2 -->|우선| P3
+        P3 -->|우선| P4
+    end
+
+    subgraph "로딩 시점"
+        L1[세션 시작]
+        L2[명시적 호출]
+        L3[자동 감지]
+        L4[이벤트 발생]
+
+        L1 -.->|로딩| OS
+        L2 -.->|로딩| SC
+        L2 -.->|로딩| SA
+        L3 -.->|로딩| AS
+        L4 -.->|실행| Hooks
+    end
+
+    subgraph "컴포넌트"
+        OS[Output Styles]
+        SC[Slash Commands]
+        SA[Sub-Agents]
+        AS[Agent Skills]
+        Hooks[Hooks]
+    end
+
+    style P1 fill:#ffcdd2
+    style L1 fill:#c8e6c9
+    style OS fill:#fff9c4
+```
+
+### 데이터 흐름
+
+```mermaid
+flowchart TD
+    Input[사용자 입력]
+
+    Input --> Check{입력 타입?}
+
+    Check -->|"/command"| SC[Slash Command]
+    Check -->|"일반 요청"| Match{스킬 매칭?}
+
+    Match -->|매칭됨| AS[Agent Skill 활성화]
+    Match -->|매칭 안됨| Direct[직접 처리]
+
+    SC --> OSApply{Output Style 적용?}
+    AS --> OSApply
+    Direct --> OSApply
+
+    OSApply -->|적용| Styled[스타일 적용된 프롬프트]
+    OSApply -->|미적용| Normal[기본 프롬프트]
+
+    Styled --> Process[Claude 처리]
+    Normal --> Process
+
+    Process --> NeedAgent{복잡한 작업?}
+
+    NeedAgent -->|Yes| SA[Sub-Agent 위임]
+    NeedAgent -->|No| Tool[도구 실행]
+
+    SA --> Tool
+
+    Tool --> PreHook{PreToolUse Hook?}
+    PreHook -->|실행| HookCheck{Hook 결과}
+    PreHook -->|없음| Execute[도구 실행]
+
+    HookCheck -->|exit 2| Block[작업 차단]
+    HookCheck -->|exit 0| Execute
+
+    Execute --> PostHook{PostToolUse Hook?}
+    PostHook -->|실행| AutoAction[자동 액션]
+    PostHook -->|없음| Result[결과 반환]
+
+    AutoAction --> Result
+    Block --> Result
+    Result --> Output[사용자에게 출력]
+
+    style Input fill:#e3f2fd
+    style Output fill:#e8f5e9
+    style Block fill:#ffebee
+    style Execute fill:#fff9c4
+```
 
 ---
 
