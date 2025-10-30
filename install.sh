@@ -84,23 +84,60 @@ if [ -d "$TARGET_CLAUDE_DIR" ]; then
     print_info ""
     print_info "Available features:"
 
-    # List commands if they exist
-    if [ -d "$TARGET_CLAUDE_DIR/commands" ]; then
-        print_info "  Commands:"
-        find "$TARGET_CLAUDE_DIR/commands" -name "*.md" -type f | while read -r cmd; do
-            cmd_name=$(basename "$cmd" .md)
-            print_info "    - /$cmd_name"
-        done
-    fi
+    # Dynamically list all subdirectories and their contents in .claude
+    for item in "$TARGET_CLAUDE_DIR"/*; do
+        if [ -e "$item" ]; then
+            item_name=$(basename "$item")
 
-    # List skills if they exist
-    if [ -d "$TARGET_CLAUDE_DIR/skills" ]; then
-        print_info "  Skills:"
-        find "$TARGET_CLAUDE_DIR/skills" -maxdepth 1 -type d ! -path "$TARGET_CLAUDE_DIR/skills" | while read -r skill; do
-            skill_name=$(basename "$skill")
-            print_info "    - $skill_name"
-        done
-    fi
+            # Capitalize first letter for display
+            display_name=$(echo "$item_name" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+
+            if [ -d "$item" ]; then
+                # It's a directory
+                print_info "  $display_name:"
+
+                # Count items to check if directory has content
+                item_count=$(find "$item" -mindepth 1 -maxdepth 1 | wc -l)
+
+                if [ "$item_count" -eq 0 ]; then
+                    print_info "    (empty)"
+                else
+                    # For commands directory, list .md files recursively and subdirectories
+                    if [ "$item_name" = "commands" ]; then
+                        # List all .md files recursively under commands
+                        find "$item" -name "*.md" -type f 2>/dev/null | while read -r file; do
+                            # Get relative path from commands directory
+                            rel_path="${file#$item/}"
+                            # Remove .md extension
+                            cmd_name="${rel_path%.md}"
+                            print_info "    - /$cmd_name"
+                        done
+                    else
+                        # List .md files (excluding AGENT.md and SKILL.md)
+                        find "$item" -maxdepth 1 -name "*.md" -type f 2>/dev/null | while read -r file; do
+                            file_name=$(basename "$file" .md)
+                            # Skip meta files
+                            if [ "$file_name" != "AGENT" ] && [ "$file_name" != "SKILL" ]; then
+                                print_info "    - $file_name"
+                            fi
+                        done
+
+                        # List subdirectories (for skills, agents, etc.)
+                        find "$item" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read -r subdir; do
+                            subdir_name=$(basename "$subdir")
+                            print_info "    - $subdir_name"
+                        done
+                    fi
+                fi
+            elif [ -f "$item" ]; then
+                # It's a file (skip hidden files or specific files)
+                if [[ ! "$item_name" =~ ^\. ]]; then
+                    print_info "  Files:"
+                    print_info "    - $item_name"
+                fi
+            fi
+        fi
+    done
 
     print_info ""
     print_success "Installation complete!"
